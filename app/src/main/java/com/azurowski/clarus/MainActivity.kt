@@ -42,18 +42,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val city = "Kraków"
-        lifecycleScope.launch {
-            try {
-                val weather = WeatherApi.getCurrentWeather(50.06, 19.94)
-                Log.d("WeatherTest", "Miasto: ${city}")
-                Log.d("WeatherTest", "Temperatura: ${weather.current_weather.temperature} °C")
-                Log.d("WeatherTest", "Wiatr: ${weather.current_weather.windspeed} m/s")
-            } catch (e: Exception) {
-                Log.e("WeatherTest", "Błąd pobierania pogody: ${e.message}")
-            }
-        }
-
         enableEdgeToEdge()
         setContent {
             WeatherApp()
