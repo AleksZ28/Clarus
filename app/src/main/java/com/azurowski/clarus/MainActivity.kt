@@ -9,11 +9,13 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
@@ -27,16 +29,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import com.azurowski.clarus.ui.theme.ClarusTheme
 import com.azurowski.clarus.WeatherApi
+import com.azurowski.clarus.ui.theme.WeatherBackgrounds
 import com.azurowski.clarus.ui.weather.WeatherUiState
 import com.azurowski.clarus.ui.weather.WeatherViewModel
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
+import kotlin.math.round
+import com.azurowski.clarus.ui.theme.WhiteTransparent
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,13 +80,22 @@ fun WeatherApp(viewModel: WeatherViewModel = remember { WeatherViewModel(Weather
     )
 
 
-    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(brush = WeatherBackgrounds.Sunny)
+            .padding(
+                vertical = 20.dp
+            )
+            .statusBarsPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         when (state) {
             is WeatherUiState.Idle -> Text("Nie pobrano pogody")
             is WeatherUiState.Loading -> CircularProgressIndicator()
             is WeatherUiState.Success -> {
-                val data = (state as WeatherUiState.Success).data
-                Text("Dane: $data")
+                val temp = round((state as WeatherUiState.Success).data.current.apparent_temperature).toInt()
+                Text("$temp°", color = WhiteTransparent, fontSize = 128.sp, fontWeight = FontWeight.Bold)
             }
 
             is WeatherUiState.Error -> Text("Błąd: ${(state as WeatherUiState.Error).message}")
@@ -97,6 +116,7 @@ fun WeatherApp(viewModel: WeatherViewModel = remember { WeatherViewModel(Weather
 
 @Composable
 fun RequestLocationPermissions(onPermissionGranted: () -> Unit) {
+
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()

@@ -7,11 +7,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.azurowski.clarus.WeatherApi
+import com.azurowski.clarus.WeatherResponse
 
 sealed class WeatherUiState {
     object Idle : WeatherUiState()
     object Loading : WeatherUiState()
-    data class Success(val data: Any) : WeatherUiState()
+    data class Success(val data: WeatherResponse) : WeatherUiState()
     data class Error(val message: String) : WeatherUiState()
 }
 
