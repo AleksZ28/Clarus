@@ -1,5 +1,6 @@
 package com.azurowski.clarus
 
+import android.health.connect.datatypes.units.Temperature
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -7,11 +8,17 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -24,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shadow
@@ -35,10 +43,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.azurowski.clarus.ui.permissions.RequestLocationPermissions
+import com.azurowski.clarus.ui.theme.Black70
+import com.azurowski.clarus.ui.theme.CardBackgrounds
 import com.azurowski.clarus.ui.theme.WeatherBackgrounds
+import com.azurowski.clarus.ui.theme.White25
 import com.azurowski.clarus.ui.theme.WhiteTransparent
 import com.azurowski.clarus.ui.weather.WeatherUiState
 import com.azurowski.clarus.ui.weather.WeatherViewModel
+import com.azurowski.clarus.ui.weather.getWeatherIcon
 import com.azurowski.clarus.ui.weather.weatherBackground
 import com.google.android.gms.location.LocationServices
 import kotlin.math.round
@@ -51,6 +63,91 @@ class MainActivity : ComponentActivity() {
         setContent {
             WeatherApp()
         }
+    }
+}
+
+@Composable
+fun Label(text: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.padding(top = 20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = text,
+            style = TextStyle(
+                fontSize = 20.sp,
+                color = Black70,
+                fontWeight = FontWeight.Bold
+            )
+        )
+    }
+}
+
+@Composable
+fun WeatherCard(modifier: Modifier = Modifier, day: Boolean, lowestTemperature: Int, highestTemperature: Int, temperature: Int, weatherTypes: Array<String>){
+    Column(
+        modifier = modifier
+            .shadow(10.dp, RoundedCornerShape(16.dp))
+            .background(
+                brush = if (day) CardBackgrounds.Day else CardBackgrounds.Night,
+                shape = RoundedCornerShape(16.dp)
+            )
+            .padding(20.dp),
+
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = lowestTemperature.toString(),
+            style = TextStyle(
+                color = if (day) Color(0x990062FF) else Color(0x99AFF3FF),
+                fontWeight = FontWeight.Black,
+                fontSize = 24.sp
+            )
+        )
+
+        Text(
+            text = " " + temperature.toString() + "°",
+            style = TextStyle(
+                color = WhiteTransparent,
+                fontWeight = FontWeight.Black,
+                fontSize = 48.sp
+            )
+        )
+
+        Text(
+            text = highestTemperature.toString(),
+            style = TextStyle(
+                color = Color(0x99FF0004),
+                fontWeight = FontWeight.Black,
+                fontSize = 24.sp
+            )
+        )
+
+        Box(
+            modifier = Modifier.padding(top = 20.dp)
+        ){
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = White25,
+                        shape = RoundedCornerShape(100.dp)
+                    )
+                    .padding(horizontal = 10.dp, vertical = 5.dp),
+
+                horizontalArrangement = Arrangement.Center
+
+                ){
+                    weatherTypes.forEach { weather ->
+                        Image(
+                            painter = painterResource(getWeatherIcon(weather)),
+                            contentDescription = null,
+                            modifier = Modifier.size(25.dp)
+                        )
+                    }
+                }
+        }
+
     }
 }
 
@@ -79,7 +176,7 @@ fun WeatherApp(viewModel: WeatherViewModel = remember { WeatherViewModel(Weather
         modifier = Modifier
             .fillMaxSize()
             .background(
-                brush = when(state){
+                brush = when (state) {
                     is WeatherUiState.Success -> weatherBackground((state as WeatherUiState.Success).data.current)
                     else -> WeatherBackgrounds.Sunny
                 }
@@ -138,6 +235,26 @@ fun WeatherApp(viewModel: WeatherViewModel = remember { WeatherViewModel(Weather
         ) {
             Text("Pobierz pogodę")
         }
+
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp),
+            horizontalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            Label("Noc", modifier = Modifier.weight(1f))
+            Label("Jutro", modifier = Modifier.weight(1f))
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp),
+            horizontalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            WeatherCard(modifier = Modifier.weight(1f), false, 13, 17, 15,
+                arrayOf("clear_night", "mid_rain")
+            )
+            WeatherCard(modifier = Modifier.weight(1f), true, 15, 20, 18, arrayOf("sunny"))
+        }
+
+        Label("Prognoza godzinowa")
     }
 }
 
