@@ -1,10 +1,10 @@
 > Aplikacja jest w fazie tworzenia
 
-# Clarus – Aplikacja pogodowa na Androida
+# Clarus - Aplikacja pogodowa na Androida
 
 ## Opis projektu
 Clarus to natywna aplikacja pogodowa tworzona w Kotlinie z wykorzystaniem Jetpack Compose i OpenWeather API.
-Celem aplikacji jest zaprojektowanie interfejsu pogodowego, który jest **klarowny, czytelny i przydatny**, w przeciwieństwie do wielu istniejących aplikacji. 
+Celem aplikacji jest zaprojektowanie interfejsu pogodowego, który jest **klarowny, czytelny i przydatny dla użytkownika**, w przeciwieństwie do wielu istniejących aplikacji.
 
 ## Technologie
 - Kotlin + Jetpack Compose
