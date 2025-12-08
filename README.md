@@ -1,12 +1,17 @@
-> Aplikacja jest w fazie tworzenia
+> The application is currently in development
 
-# Clarus - Aplikacja pogodowa na Androida
+# Clarus - Weather App for Android  
+*🇵🇱 Clarus - Aplikacja pogodowa na Androida*
 
-## Opis projektu
-Clarus to natywna aplikacja pogodowa tworzona w Kotlinie z wykorzystaniem Jetpack Compose i OpenWeather API.
+## Project Description
+Clarus is a native weather app built in Kotlin using Jetpack Compose and the OpenWeather API.  
+The goal of the app is to design a weather interface that is **clear, readable, and useful for the user**, unlike many existing apps.  
+
+🇵🇱 **Opis projektu**  
+Clarus to natywna aplikacja pogodowa tworzona w Kotlinie z wykorzystaniem Jetpack Compose i OpenWeather API.  
 Celem aplikacji jest zaprojektowanie interfejsu pogodowego, który jest **klarowny, czytelny i przydatny dla użytkownika**, w przeciwieństwie do wielu istniejących aplikacji.
 
-## Technologie
+## Technologies
 - Kotlin + Jetpack Compose
 - OpenWeather API
 
