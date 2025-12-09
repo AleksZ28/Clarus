@@ -13,6 +13,6 @@ Celem aplikacji jest zaprojektowanie interfejsu pogodowego, który jest **klarow
 
 ## Technologies
 - Kotlin + Jetpack Compose
-- OpenWeather API
+- Open-Meteo API
 
 <img width="1050" height="741" alt="Zrzut ekranu 2025-12-7 o 20 56 03" src="https://github.com/user-attachments/assets/89bb309f-cb74-4b8e-a526-6194fe16be51" />
