@@ -239,7 +239,7 @@ fun WeatherApp(viewModel: WeatherViewModel = remember { WeatherViewModel(Weather
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp),
             horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Label("Noc", modifier = Modifier.weight(1f))
@@ -247,7 +247,7 @@ fun WeatherApp(viewModel: WeatherViewModel = remember { WeatherViewModel(Weather
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp),
             horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             WeatherCard(modifier = Modifier.weight(1f), false, 13, 17, 15,

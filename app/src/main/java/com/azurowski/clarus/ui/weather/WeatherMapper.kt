@@ -15,11 +15,11 @@ fun mapCurrentWeather(current: CurrentWeather): String{
         rain > 0.75 -> "mid_rain"
         rain > 0.3 -> "low_rain"
         showers > 0.3 -> "low_rain"
+        is_day == 0 -> "clear_night"
         cloud_cover >= 75 -> "cloudy"
         cloud_cover >= 50 -> "75_cloudy"
         cloud_cover >= 25 -> "50_cloudy"
         cloud_cover >= 5 -> "25_cloudy"
-        is_day == 0 -> "clear_night"
         else -> "sunny"
     }
 }
