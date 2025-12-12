@@ -6,7 +6,7 @@ import com.azurowski.clarus.CurrentWeather
 import com.azurowski.clarus.ui.theme.WeatherBackgrounds
 
 @Composable
-fun weatherBackground(currentWeather: CurrentWeather): Brush{
+fun mapWeatherBackground(currentWeather: CurrentWeather): Brush{
     return when{
         currentWeather.is_day == 0 -> WeatherBackgrounds.Night
         currentWeather.snowfall > 0 -> WeatherBackgrounds.Snowy

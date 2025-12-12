@@ -1,6 +1,5 @@
 package com.azurowski.clarus
 
-import android.health.connect.datatypes.units.Temperature
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,11 +12,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -51,7 +48,8 @@ import com.azurowski.clarus.ui.theme.WhiteTransparent
 import com.azurowski.clarus.ui.weather.WeatherUiState
 import com.azurowski.clarus.ui.weather.WeatherViewModel
 import com.azurowski.clarus.ui.weather.getWeatherIcon
-import com.azurowski.clarus.ui.weather.weatherBackground
+import com.azurowski.clarus.ui.weather.mapCurrentWeather
+import com.azurowski.clarus.ui.weather.mapWeatherBackground
 import com.google.android.gms.location.LocationServices
 import kotlin.math.round
 
@@ -106,7 +104,7 @@ fun WeatherCard(modifier: Modifier = Modifier, day: Boolean, lowestTemperature: 
         )
 
         Text(
-            text = " " + temperature.toString() + "°",
+            text = " $temperature°",
             style = TextStyle(
                 color = WhiteTransparent,
                 fontWeight = FontWeight.Black,
@@ -177,7 +175,7 @@ fun WeatherApp(viewModel: WeatherViewModel = remember { WeatherViewModel(Weather
             .fillMaxSize()
             .background(
                 brush = when (state) {
-                    is WeatherUiState.Success -> weatherBackground((state as WeatherUiState.Success).data.current)
+                    is WeatherUiState.Success -> mapWeatherBackground((state as WeatherUiState.Success).data.current)
                     else -> WeatherBackgrounds.Sunny
                 }
             )
@@ -193,9 +191,13 @@ fun WeatherApp(viewModel: WeatherViewModel = remember { WeatherViewModel(Weather
             is WeatherUiState.Idle -> Text("Nie pobrano pogody")
             is WeatherUiState.Loading -> CircularProgressIndicator()
             is WeatherUiState.Success -> {
-                val temp = round((state as WeatherUiState.Success).data.current.apparent_temperature).toInt()
+                val currentWeather = (state as WeatherUiState.Success).data.current
+                val currentTemp = round(currentWeather.apparent_temperature).toInt()
+                val currentWeatherType = mapCurrentWeather(currentWeather)
+                val currentWeatherIcon = getWeatherIcon(currentWeatherType)
+
                 Image(
-                    painter = painterResource(R.drawable.moon),
+                    painter = painterResource(currentWeatherIcon),
                     contentDescription = null,
                     modifier = Modifier
                         .size(128.dp)
@@ -209,7 +211,7 @@ fun WeatherApp(viewModel: WeatherViewModel = remember { WeatherViewModel(Weather
                         )
                 )
                 Text(
-                    text = "$temp°",
+                    text = " $currentTemp°",
                     style = TextStyle(
                         color = WhiteTransparent,
                         fontSize = 128.sp,
