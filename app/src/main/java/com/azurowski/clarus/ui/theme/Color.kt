@@ -14,3 +14,5 @@ val WhiteTransparent = Color(0x99FFFFFF)
 
 val White25 = Color(0x40FFFFFF)
 val Black70 = Color(0xB3000000)
+
+val WeatherBlue = Color(0xFF006AFF)

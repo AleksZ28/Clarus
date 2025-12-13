@@ -25,7 +25,7 @@ class WeatherViewModel(private val api: WeatherApi) : ViewModel() {
         viewModelScope.launch {
             try {
                 _uiState.value = WeatherUiState.Loading
-                val response = api.getCurrentWeather(latitude,longitude)
+                val response = api.getWeather(latitude,longitude)
                 _uiState.value = WeatherUiState.Success(response)
             } catch (e: Exception) {
                 _uiState.value = WeatherUiState.Error(e.message ?: "Unknown error")

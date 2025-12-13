@@ -15,7 +15,7 @@ fun getWeatherIcon(weatherType: String): Int {
         "mid_rain" -> R.drawable.mid_rain
         "heavy_rain" -> R.drawable.heavy_rain
         "snowy" -> R.drawable.snow
-        "clear_night" -> R.drawable.moon
+        "night" -> R.drawable.moon
         else -> R.drawable.ic_launcher_foreground
     }
 }
