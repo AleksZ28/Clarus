@@ -2,6 +2,7 @@ package com.azurowski.clarus.model
 
 data class HourlyWeatherToProcess(
     val time: String,
+    val is_day: Int,
     val temperature_2m: Double,
     val relative_humidity_2m: Int,
     val apparent_temperature: Double,
@@ -20,6 +21,7 @@ data class HourlyWeatherToProcess(
 
 data class HourlyWeather(
     val hour: String,
+    val is_day: Int,
     val weatherType: String,
     val precipitation: Double,
     val precipitationProbability: Int,

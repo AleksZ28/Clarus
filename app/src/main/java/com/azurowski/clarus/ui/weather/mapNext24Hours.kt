@@ -13,6 +13,7 @@ fun mapNext24Hours(hourlyWeatherFromApi: HourlyWeatherFromAPI): List<HourlyWeath
         if(i >= currentHour){
             val hourlyData = HourlyWeatherToProcess(
                 time = hourlyWeatherFromApi.time[i],
+                is_day = hourlyWeatherFromApi.is_day[i],
                 temperature_2m = hourlyWeatherFromApi.temperature_2m[i],
                 relative_humidity_2m = hourlyWeatherFromApi.relative_humidity_2m[i],
                 apparent_temperature = hourlyWeatherFromApi.apparent_temperature[i],
@@ -31,6 +32,7 @@ fun mapNext24Hours(hourlyWeatherFromApi: HourlyWeatherFromAPI): List<HourlyWeath
 
             HourlyWeather(
                 hour = hourlyData.time.substring(11,13),
+                is_day = hourlyData.is_day,
                 precipitationProbability = hourlyData.precipitation_probability,
                 precipitation = hourlyData.precipitation,
                 weatherType = mapHourlyWeather(hourlyData)

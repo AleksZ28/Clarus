@@ -31,7 +31,7 @@ fun mapHourlyWeather(hourly: HourlyWeatherToProcess): String{
     val showers = hourly.showers
     val snowfall = hourly.snowfall
     val cloud_cover = hourly.cloud_cover
-    val hour = hourly.time.substring(11,13).toInt()
+    val is_day = hourly.is_day
 
     return when {
         snowfall > 0.1 && precipitation_probability > 40 -> "snowy"
@@ -41,7 +41,7 @@ fun mapHourlyWeather(hourly: HourlyWeatherToProcess): String{
         precipitation_probability > 40 && showers > 0.3 -> "low_rain"
         precipitation_probability in 30..<40 -> "low_rain"
         cloud_cover >= 75 -> "cloudy"
-        hour in 22..24 || hour in 0..5 -> "night"
+        is_day == 0 -> "night"
         cloud_cover >= 50 -> "75_cloudy"
         cloud_cover >= 25 -> "50_cloudy"
         cloud_cover >= 5 -> "25_cloudy"
