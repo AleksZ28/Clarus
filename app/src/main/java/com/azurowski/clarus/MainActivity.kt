@@ -1,23 +1,24 @@
 package com.azurowski.clarus
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -50,6 +51,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.azurowski.clarus.model.HourlyWeather
+import com.azurowski.clarus.ui.charts.MakeTemperatureChart
 import com.azurowski.clarus.ui.permissions.RequestLocationPermissions
 import com.azurowski.clarus.ui.theme.Black70
 import com.azurowski.clarus.ui.theme.CardBackgrounds
@@ -162,11 +164,26 @@ fun WeatherCard(modifier: Modifier = Modifier, day: Boolean, lowestTemperature: 
     }
 }
 
+@SuppressLint("FrequentlyChangingValue")
 @Composable
 fun HourlyWeatherRow(hourlyWeather: List<HourlyWeather>){
 
-    LazyRow(
+    val hours = hourlyWeather.map { it ->
+        it.hour.toInt()
+    }
+
+    val temperatures = hourlyWeather.map { it ->
+        round(it.temperature).toInt()
+    }
+
+    val scrollState = rememberScrollState()
+
+    val itemWidthDp = 56.dp
+    val totalWidth = itemWidthDp * 24 + 16.dp + 16.dp
+
+    Box(
         modifier = Modifier
+            .fillMaxWidth()
             .graphicsLayer {
                 compositingStrategy = CompositingStrategy.Offscreen
             }
@@ -186,51 +203,71 @@ fun HourlyWeatherRow(hourlyWeather: List<HourlyWeather>){
                         blendMode = BlendMode.DstIn
                     )
                 }
-            },
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp),
+            }
     ) {
-        items(hourlyWeather) { weather ->
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(2.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(scrollState)
+        ) {
+            Row (
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp)
             ) {
+                hourlyWeather.forEach { weather ->
+                    Column(
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
 
-                Text(
-                    text = if (weather.weatherType in listOf("snowy", "heavy_rain", "mid_rain", "low_rain")) weather.precipitationProbability.toString() + "%" else "",
-                    style = TextStyle(
-                        color = WeatherBlue,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 10.sp
-                    )
-                )
+                        Text(
+                            text = if (weather.weatherType in listOf("snowy", "heavy_rain", "mid_rain", "low_rain")) weather.precipitationProbability.toString() + "%" else "",
+                            style = TextStyle(
+                                color = WeatherBlue,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 10.sp
+                            )
+                        )
 
-                Image(
-                    painter = painterResource(getWeatherIcon(weather.weatherType)),
-                    contentDescription = null,
-                    modifier = Modifier.size(40.dp)
-                )
+                        Image(
+                            painter = painterResource(getWeatherIcon(weather.weatherType)),
+                            contentDescription = null,
+                            modifier = Modifier.size(40.dp)
+                        )
 
-                Text(
-                    text = if (weather.weatherType in listOf("snowy", "heavy_rain", "mid_rain", "low_rain")) weather.precipitation.toString() + " mm" else "",
-                    style = TextStyle(
-                        color = WeatherBlue,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 10.sp
-                    )
-                )
+                        Text(
+                            text = if (weather.weatherType in listOf("snowy", "heavy_rain", "mid_rain", "low_rain")) weather.precipitation.toString() + " mm" else "",
+                            style = TextStyle(
+                                color = WeatherBlue,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 10.sp
+                            )
+                        )
 
-                Text(
-                    text=weather.hour,
-                    style = TextStyle(
-                        fontWeight = FontWeight.Black,
-                        fontSize = 20.sp
-                    )
-                )
+                        Text(
+                            text=weather.hour,
+                            style = TextStyle(
+                                fontWeight = FontWeight.Black,
+                                fontSize = 20.sp
+                            )
+                        )
+                    }
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .height(120.dp)
+                    .width(totalWidth)
+                    .padding(horizontal = 44.dp, vertical = 8.dp)
+            ) {
+                MakeTemperatureChart(modifier = Modifier.fillMaxWidth(), x = hours, y = temperatures)
             }
         }
     }
+
+
 }
 
 @Composable
@@ -308,27 +345,27 @@ fun WeatherApp(viewModel: WeatherViewModel = remember { WeatherViewModel(Weather
                     )
                 )
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 30.dp),
-                    horizontalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
-                    Label("Noc", modifier = Modifier.weight(1f))
-                    Label("Jutro", modifier = Modifier.weight(1f))
-                }
+//                Row(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(horizontal = 30.dp),
+//                    horizontalArrangement = Arrangement.spacedBy(20.dp)
+//                ) {
+//                    Label("Noc", modifier = Modifier.weight(1f))
+//                    Label("Jutro", modifier = Modifier.weight(1f))
+//                }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 30.dp, end = 30.dp, bottom = 20.dp),
-                    horizontalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
-                    WeatherCard(modifier = Modifier.weight(1f), false, 13, 17, 15,
-                        arrayOf("night", "mid_rain")
-                    )
-                    WeatherCard(modifier = Modifier.weight(1f), true, 15, 20, 18, arrayOf("sunny"))
-                }
+//                Row(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(start = 30.dp, end = 30.dp, bottom = 20.dp),
+//                    horizontalArrangement = Arrangement.spacedBy(20.dp)
+//                ) {
+//                    WeatherCard(modifier = Modifier.weight(1f), false, 13, 17, 15,
+//                        arrayOf("night", "mid_rain")
+//                    )
+//                    WeatherCard(modifier = Modifier.weight(1f), true, 15, 20, 18, arrayOf("sunny"))
+//                }
 
                 Label("Prognoza godzinowa")
 

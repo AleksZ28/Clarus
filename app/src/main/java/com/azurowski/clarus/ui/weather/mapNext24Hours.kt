@@ -35,6 +35,7 @@ fun mapNext24Hours(hourlyWeatherFromApi: HourlyWeatherFromAPI): List<HourlyWeath
                 is_day = hourlyData.is_day,
                 precipitationProbability = hourlyData.precipitation_probability,
                 precipitation = hourlyData.precipitation,
+                temperature = hourlyData.apparent_temperature,
                 weatherType = mapHourlyWeather(hourlyData)
             )
         } else null
