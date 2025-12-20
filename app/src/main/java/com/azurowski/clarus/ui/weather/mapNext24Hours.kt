@@ -4,6 +4,7 @@ import com.azurowski.clarus.HourlyWeatherFromAPI
 import com.azurowski.clarus.model.HourlyWeather
 import com.azurowski.clarus.model.HourlyWeatherToProcess
 import java.util.Calendar
+import kotlin.math.round
 
 fun mapNext24Hours(hourlyWeatherFromApi: HourlyWeatherFromAPI): List<HourlyWeather> {
     val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
@@ -35,7 +36,7 @@ fun mapNext24Hours(hourlyWeatherFromApi: HourlyWeatherFromAPI): List<HourlyWeath
                 is_day = hourlyData.is_day,
                 precipitationProbability = hourlyData.precipitation_probability,
                 precipitation = hourlyData.precipitation,
-                temperature = hourlyData.apparent_temperature,
+                temperature = round(hourlyData.apparent_temperature).toInt(),
                 weatherType = mapHourlyWeather(hourlyData)
             )
         } else null

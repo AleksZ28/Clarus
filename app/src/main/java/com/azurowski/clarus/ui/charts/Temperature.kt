@@ -38,7 +38,6 @@ import com.patrykandpatrick.vico.core.cartesian.layer.LineCartesianLayer
 import com.patrykandpatrick.vico.core.cartesian.marker.DefaultCartesianMarker
 import com.patrykandpatrick.vico.core.common.shader.ShaderProvider
 import java.text.DecimalFormat
-import java.time.LocalDateTime
 
 private val YDecimalFormat = DecimalFormat("##'°'")
 private val MarkerValueFormatter = DefaultCartesianMarker.ValueFormatter.default(YDecimalFormat)
@@ -78,15 +77,14 @@ private fun TemperatureChart(
 
 
 @Composable
-fun MakeTemperatureChart(modifier: Modifier = Modifier, x: List<Int>, y: List<Int>) {
+fun MakeTemperatureChart(modifier: Modifier = Modifier, y: List<Int>) {
     val modelProducer = remember { CartesianChartModelProducer() }
     val RangeProvider = CartesianLayerRangeProvider.fixed(maxY = y.max().toDouble())
+    val x = (0..23).toList()
     LaunchedEffect(Unit) {
-        val current = LocalDateTime.now()
-        val xAdjusted = x.map { it + current.hour }
         modelProducer.runTransaction {
             // Learn more: https://patrykandpatrick.com/vmml6t.
-            lineSeries { series(xAdjusted, y) }
+            lineSeries { series(x, y) }
         }
     }
 

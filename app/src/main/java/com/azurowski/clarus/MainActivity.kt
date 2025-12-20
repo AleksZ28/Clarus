@@ -1,6 +1,5 @@
 package com.azurowski.clarus
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -164,17 +164,10 @@ fun WeatherCard(modifier: Modifier = Modifier, day: Boolean, lowestTemperature: 
     }
 }
 
-@SuppressLint("FrequentlyChangingValue")
 @Composable
 fun HourlyWeatherRow(hourlyWeather: List<HourlyWeather>){
 
-    val hours = hourlyWeather.map { it ->
-        it.hour.toInt()
-    }
-
-    val temperatures = hourlyWeather.map { it ->
-        round(it.temperature).toInt()
-    }
+    val temperatures = hourlyWeather.map { it -> it.temperature }
 
     val scrollState = rememberScrollState()
 
@@ -246,28 +239,44 @@ fun HourlyWeatherRow(hourlyWeather: List<HourlyWeather>){
                         )
 
                         Text(
-                            text=weather.hour,
+                            text = weather.hour + ":00",
                             style = TextStyle(
+                                color = Black70,
                                 fontWeight = FontWeight.Black,
-                                fontSize = 20.sp
-                            )
+                                fontSize = 14.sp
+                            ),
+                            modifier = Modifier
+                                .padding(bottom = 10.dp)
                         )
+
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .background(White25, shape = CircleShape)
+                        ) {
+                            Text(
+                                text = weather.temperature.toString() + "°",
+                                style = TextStyle(
+                                    color = Black70,
+                                    fontWeight = FontWeight.Bold
+                                ),
+                            )
+                        }
                     }
                 }
             }
 
             Box(
                 modifier = Modifier
-                    .height(120.dp)
+                    .height(100.dp)
                     .width(totalWidth)
-                    .padding(horizontal = 44.dp, vertical = 8.dp)
+                    .padding(horizontal = 44.dp)
             ) {
-                MakeTemperatureChart(modifier = Modifier.fillMaxWidth(), x = hours, y = temperatures)
+                MakeTemperatureChart(modifier = Modifier.fillMaxWidth(), y = temperatures)
             }
         }
     }
-
-
 }
 
 @Composable

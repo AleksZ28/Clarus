@@ -25,5 +25,5 @@ data class HourlyWeather(
     val weatherType: String,
     val precipitation: Double,
     val precipitationProbability: Int,
-    val temperature: Double,
+    val temperature: Int,
 )
