@@ -1,6 +1,7 @@
 package com.azurowski.clarus
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -51,6 +52,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.azurowski.clarus.model.HourlyWeather
+import com.azurowski.clarus.model.NightWeather
 import com.azurowski.clarus.ui.charts.MakeTemperatureChart
 import com.azurowski.clarus.ui.permissions.RequestLocationPermissions
 import com.azurowski.clarus.ui.theme.Black70
@@ -64,7 +66,9 @@ import com.azurowski.clarus.ui.weather.WeatherViewModel
 import com.azurowski.clarus.ui.weather.getWeatherIcon
 import com.azurowski.clarus.ui.weather.mapCurrentWeather
 import com.azurowski.clarus.ui.weather.mapNext24Hours
+import com.azurowski.clarus.ui.weather.mapNextNight
 import com.azurowski.clarus.ui.weather.mapWeatherBackground
+import com.azurowski.clarus.ui.weather.parseNightWeather
 import com.google.android.gms.location.LocationServices
 import kotlin.math.round
 
@@ -97,7 +101,12 @@ fun Label(text: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun WeatherCard(modifier: Modifier = Modifier, day: Boolean, lowestTemperature: Int, highestTemperature: Int, temperature: Int, weatherTypes: Array<String>){
+fun WeatherCard(modifier: Modifier = Modifier, day: Boolean, nightWeather: NightWeather){
+    val lowestTemperature = nightWeather.minTemperature
+    val temperature = nightWeather.medianTemperature
+    val highestTemperature = nightWeather.maxTemperature
+    val weatherTypes = nightWeather.weatherTypes
+
     Column(
         modifier = modifier
             .shadow(10.dp, RoundedCornerShape(16.dp))
@@ -148,8 +157,7 @@ fun WeatherCard(modifier: Modifier = Modifier, day: Boolean, lowestTemperature: 
                     )
                     .padding(horizontal = 10.dp, vertical = 5.dp),
 
-                horizontalArrangement = Arrangement.Center
-
+                horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
                 ){
                     weatherTypes.forEach { weather ->
                         Image(
@@ -259,7 +267,8 @@ fun HourlyWeatherRow(hourlyWeather: List<HourlyWeather>){
                                 text = weather.temperature.toString() + "°",
                                 style = TextStyle(
                                     color = Black70,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp
                                 ),
                             )
                         }
@@ -354,31 +363,34 @@ fun WeatherApp(viewModel: WeatherViewModel = remember { WeatherViewModel(Weather
                     )
                 )
 
-//                Row(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(horizontal = 30.dp),
-//                    horizontalArrangement = Arrangement.spacedBy(20.dp)
-//                ) {
-//                    Label("Noc", modifier = Modifier.weight(1f))
-//                    Label("Jutro", modifier = Modifier.weight(1f))
-//                }
+                val hourlyWeatherFromApi = (state as WeatherUiState.Success).data.hourly
 
-//                Row(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(start = 30.dp, end = 30.dp, bottom = 20.dp),
-//                    horizontalArrangement = Arrangement.spacedBy(20.dp)
-//                ) {
-//                    WeatherCard(modifier = Modifier.weight(1f), false, 13, 17, 15,
-//                        arrayOf("night", "mid_rain")
-//                    )
-//                    WeatherCard(modifier = Modifier.weight(1f), true, 15, 20, 18, arrayOf("sunny"))
-//                }
+                val nightWeather = mapNextNight(hourlyWeatherFromApi)
+                val parsedNightWeather = parseNightWeather(nightWeather)
+                Log.d("NIGHT_WEATHER", parsedNightWeather.toString())
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 30.dp),
+                    horizontalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    Label("Noc", modifier = Modifier.weight(1f))
+                    Label("Jutro", modifier = Modifier.weight(1f))
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 30.dp, end = 30.dp, bottom = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    WeatherCard(modifier = Modifier.weight(1f), false, parsedNightWeather)
+                    WeatherCard(modifier = Modifier.weight(1f), true, NightWeather(0,0,0,listOf("cloudy")))
+                }
 
                 Label("Prognoza godzinowa")
 
-                val hourlyWeatherFromApi = (state as WeatherUiState.Success).data.hourly
                 val hourlyWeather = mapNext24Hours(hourlyWeatherFromApi)
 
                 HourlyWeatherRow(hourlyWeather)
