@@ -16,8 +16,8 @@ object CardBackgrounds {
 
     val Day = Brush.linearGradient(
         colors = listOf(
-            Color(0xFF5DC9FF),
-            Color(0xFFD4EDFF)
+            Color(0xFF7FCCFF),
+            Color(0xFFCDD5DB)
         ),
         start = Offset(0f, 0f),
         end = Offset(0f, Float.POSITIVE_INFINITY)

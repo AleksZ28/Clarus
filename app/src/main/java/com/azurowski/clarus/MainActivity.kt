@@ -52,7 +52,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.azurowski.clarus.model.HourlyWeather
-import com.azurowski.clarus.model.NightWeather
+import com.azurowski.clarus.model.WeatherSummary
 import com.azurowski.clarus.ui.charts.MakeTemperatureChart
 import com.azurowski.clarus.ui.permissions.RequestLocationPermissions
 import com.azurowski.clarus.ui.theme.Black70
@@ -66,8 +66,10 @@ import com.azurowski.clarus.ui.weather.WeatherViewModel
 import com.azurowski.clarus.ui.weather.getWeatherIcon
 import com.azurowski.clarus.ui.weather.mapCurrentWeather
 import com.azurowski.clarus.ui.weather.mapNext24Hours
+import com.azurowski.clarus.ui.weather.mapNextDay
 import com.azurowski.clarus.ui.weather.mapNextNight
 import com.azurowski.clarus.ui.weather.mapWeatherBackground
+import com.azurowski.clarus.ui.weather.parseDayWeather
 import com.azurowski.clarus.ui.weather.parseNightWeather
 import com.google.android.gms.location.LocationServices
 import kotlin.math.round
@@ -101,11 +103,11 @@ fun Label(text: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun WeatherCard(modifier: Modifier = Modifier, day: Boolean, nightWeather: NightWeather){
-    val lowestTemperature = nightWeather.minTemperature
-    val temperature = nightWeather.medianTemperature
-    val highestTemperature = nightWeather.maxTemperature
-    val weatherTypes = nightWeather.weatherTypes
+fun WeatherCard(modifier: Modifier = Modifier, day: Boolean, weatherSummary: WeatherSummary){
+    val lowestTemperature = weatherSummary.minTemperature
+    val temperature = weatherSummary.medianTemperature
+    val highestTemperature = weatherSummary.maxTemperature
+    val weatherTypes = weatherSummary.weatherTypes
 
     Column(
         modifier = modifier
@@ -365,9 +367,15 @@ fun WeatherApp(viewModel: WeatherViewModel = remember { WeatherViewModel(Weather
 
                 val hourlyWeatherFromApi = (state as WeatherUiState.Success).data.hourly
 
-                val nightWeather = mapNextNight(hourlyWeatherFromApi)
-                val parsedNightWeather = parseNightWeather(nightWeather)
-                Log.d("NIGHT_WEATHER", parsedNightWeather.toString())
+                val nextNightWeather = mapNextNight(hourlyWeatherFromApi)
+                val parsedNextNightWeather = parseNightWeather(nextNightWeather)
+                Log.d("NIGHT_WEATHER", parsedNextNightWeather.toString())
+
+                val nextDayWeather = mapNextDay(hourlyWeatherFromApi, latitude!!, longitude!!)
+                val parsedNextDayWeather = parseDayWeather(nextDayWeather)
+                Log.d("DAY_WEATHER", parsedNextDayWeather.toString())
+
+                val isCurrentDayNight = nextDayWeather[0].isCurrentDayNight!!
 
                 Row(
                     modifier = Modifier
@@ -375,8 +383,8 @@ fun WeatherApp(viewModel: WeatherViewModel = remember { WeatherViewModel(Weather
                         .padding(horizontal = 30.dp),
                     horizontalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
-                    Label("Noc", modifier = Modifier.weight(1f))
-                    Label("Jutro", modifier = Modifier.weight(1f))
+                    Label(text = if (!isCurrentDayNight) "Noc" else "Nadchodzący dzień", modifier = Modifier.weight(1f))
+                    Label(text = if (!isCurrentDayNight) "Jutro" else "Następna noc", modifier = Modifier.weight(1f))
                 }
 
                 Row(
@@ -385,8 +393,14 @@ fun WeatherApp(viewModel: WeatherViewModel = remember { WeatherViewModel(Weather
                         .padding(start = 30.dp, end = 30.dp, bottom = 20.dp),
                     horizontalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
-                    WeatherCard(modifier = Modifier.weight(1f), false, parsedNightWeather)
-                    WeatherCard(modifier = Modifier.weight(1f), true, NightWeather(0,0,0,listOf("cloudy")))
+                    if (!isCurrentDayNight){
+                        WeatherCard(modifier = Modifier.weight(1f), false, parsedNextNightWeather)
+                        WeatherCard(modifier = Modifier.weight(1f), true, parsedNextDayWeather)
+                    } else {
+                        WeatherCard(modifier = Modifier.weight(1f), true, parsedNextDayWeather)
+                        WeatherCard(modifier = Modifier.weight(1f), false, parsedNextNightWeather)
+                    }
+
                 }
 
                 Label("Prognoza godzinowa")

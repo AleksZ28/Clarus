@@ -8,8 +8,8 @@ fun mapNextNight(hourlyWeatherFromApi: HourlyWeatherFromAPI): List<HourlyWeather
     var nightHoursCount = 0
     var nightEnd = false
 
-    hourlyWeatherFromApi.is_day.forEachIndexed { i, it ->
-        if (it == 0 && !nightEnd && i > 12) {
+    hourlyWeatherFromApi.is_day.forEachIndexed { i, isDay ->
+        if (isDay == 0 && !nightEnd && i > 12) {
             nightHoursCount++
         } else if (nightHoursCount > 0){
             nightEnd = true

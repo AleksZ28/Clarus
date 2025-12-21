@@ -1,6 +1,6 @@
 package com.azurowski.clarus.model
 
-data class NightWeather(
+data class WeatherSummary (
     val minTemperature: Int,
     val maxTemperature: Int,
     val medianTemperature: Int,

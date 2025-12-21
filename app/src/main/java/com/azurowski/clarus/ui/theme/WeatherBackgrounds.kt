@@ -53,7 +53,7 @@ object WeatherBackgrounds {
 
     val Night = Brush.linearGradient(
         colors = listOf(
-            Color(0xFF8912F0),
+            Color(0xFF7312F0),
             Color(0xFFBCD5D9)
         ),
         start = Offset(0f, 0f),

@@ -16,7 +16,8 @@ data class HourlyWeatherToProcess(
     val cloud_cover: Int,
     val visibility: Double,
     val wind_speed_10m: Double,
-    val wind_direction_10m: Double
+    val wind_direction_10m: Double,
+    val isCurrentDayNight: Boolean? = null
 )
 
 data class HourlyWeather(
