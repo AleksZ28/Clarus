@@ -7,21 +7,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,16 +28,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.dropShadow
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -51,15 +39,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.azurowski.clarus.model.HourlyWeather
-import com.azurowski.clarus.model.WeatherSummary
-import com.azurowski.clarus.ui.charts.MakeTemperatureChart
+import com.azurowski.clarus.ui.components.HourlyWeatherRow
+import com.azurowski.clarus.ui.components.Label
+import com.azurowski.clarus.ui.components.WeatherCard
 import com.azurowski.clarus.ui.permissions.RequestLocationPermissions
-import com.azurowski.clarus.ui.theme.Black70
-import com.azurowski.clarus.ui.theme.CardBackgrounds
 import com.azurowski.clarus.ui.theme.WeatherBackgrounds
-import com.azurowski.clarus.ui.theme.WeatherBlue
-import com.azurowski.clarus.ui.theme.White25
 import com.azurowski.clarus.ui.theme.WhiteTransparent
 import com.azurowski.clarus.ui.weather.WeatherUiState
 import com.azurowski.clarus.ui.weather.WeatherViewModel
@@ -81,211 +65,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WeatherApp()
-        }
-    }
-}
-
-@Composable
-fun Label(text: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.padding(top = 5.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = text,
-            style = TextStyle(
-                fontSize = 20.sp,
-                color = Black70,
-                fontWeight = FontWeight.Bold
-            )
-        )
-    }
-}
-
-@Composable
-fun WeatherCard(modifier: Modifier = Modifier, day: Boolean, weatherSummary: WeatherSummary){
-    val lowestTemperature = weatherSummary.minTemperature
-    val temperature = weatherSummary.medianTemperature
-    val highestTemperature = weatherSummary.maxTemperature
-    val weatherTypes = weatherSummary.weatherTypes
-
-    Column(
-        modifier = modifier
-            .shadow(10.dp, RoundedCornerShape(16.dp))
-            .background(
-                brush = if (day) CardBackgrounds.Day else CardBackgrounds.Night,
-                shape = RoundedCornerShape(16.dp)
-            )
-            .padding(20.dp),
-
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = lowestTemperature.toString(),
-            style = TextStyle(
-                color = if (day) Color(0x990062FF) else Color(0x99AFF3FF),
-                fontWeight = FontWeight.Black,
-                fontSize = 24.sp
-            )
-        )
-
-        Text(
-            text = " $temperature°",
-            style = TextStyle(
-                color = WhiteTransparent,
-                fontWeight = FontWeight.Black,
-                fontSize = 48.sp
-            )
-        )
-
-        Text(
-            text = highestTemperature.toString(),
-            style = TextStyle(
-                color = Color(0x99FF0004),
-                fontWeight = FontWeight.Black,
-                fontSize = 24.sp
-            )
-        )
-
-        Box(
-            modifier = Modifier.padding(top = 20.dp)
-        ){
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = White25,
-                        shape = RoundedCornerShape(100.dp)
-                    )
-                    .padding(horizontal = 10.dp, vertical = 5.dp),
-
-                horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
-                ){
-                    weatherTypes.forEach { weather ->
-                        Image(
-                            painter = painterResource(getWeatherIcon(weather)),
-                            contentDescription = null,
-                            modifier = Modifier.size(25.dp)
-                        )
-                    }
-                }
-        }
-
-    }
-}
-
-@Composable
-fun HourlyWeatherRow(hourlyWeather: List<HourlyWeather>){
-
-    val temperatures = hourlyWeather.map { it -> it.temperature }
-
-    val scrollState = rememberScrollState()
-
-    val itemWidthDp = 56.dp
-    val totalWidth = itemWidthDp * 24 + 16.dp + 16.dp
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .graphicsLayer {
-                compositingStrategy = CompositingStrategy.Offscreen
-            }
-            .drawWithCache {
-                val fadeWidth = 0.1f
-                val fadeBrush = Brush.horizontalGradient(
-                    0.0f to Color.Transparent,
-                    fadeWidth to Color.Black,
-                    (1.0f - fadeWidth) to Color.Black,
-                    1.0f to Color.Transparent
-                )
-
-                onDrawWithContent {
-                    drawContent()
-                    drawRect(
-                        brush = fadeBrush,
-                        blendMode = BlendMode.DstIn
-                    )
-                }
-            }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(scrollState)
-        ) {
-            Row (
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp)
-            ) {
-                hourlyWeather.forEach { weather ->
-                    Column(
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-
-                        Text(
-                            text = if (weather.weatherType in listOf("snowy", "heavy_rain", "mid_rain", "low_rain")) weather.precipitationProbability.toString() + "%" else "",
-                            style = TextStyle(
-                                color = WeatherBlue,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 10.sp
-                            )
-                        )
-
-                        Image(
-                            painter = painterResource(getWeatherIcon(weather.weatherType)),
-                            contentDescription = null,
-                            modifier = Modifier.size(40.dp)
-                        )
-
-                        Text(
-                            text = if (weather.weatherType in listOf("snowy", "heavy_rain", "mid_rain", "low_rain")) weather.precipitation.toString() + " mm" else "",
-                            style = TextStyle(
-                                color = WeatherBlue,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 10.sp
-                            )
-                        )
-
-                        Text(
-                            text = weather.hour + ":00",
-                            style = TextStyle(
-                                color = Black70,
-                                fontWeight = FontWeight.Black,
-                                fontSize = 14.sp
-                            ),
-                            modifier = Modifier
-                                .padding(bottom = 10.dp)
-                        )
-
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .size(40.dp)
-                                .background(White25, shape = CircleShape)
-                        ) {
-                            Text(
-                                text = weather.temperature.toString() + "°",
-                                style = TextStyle(
-                                    color = Black70,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp
-                                ),
-                            )
-                        }
-                    }
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .height(100.dp)
-                    .width(totalWidth)
-                    .padding(horizontal = 44.dp)
-            ) {
-                MakeTemperatureChart(modifier = Modifier.fillMaxWidth(), y = temperatures)
-            }
         }
     }
 }
