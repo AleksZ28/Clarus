@@ -60,6 +60,8 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.vico.compose.m3)
     implementation(libs.kastro)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.compose.material.icons.extended)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

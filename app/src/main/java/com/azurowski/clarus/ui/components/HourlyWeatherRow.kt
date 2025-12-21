@@ -145,7 +145,7 @@ fun HourlyWeatherRow(hourlyWeather: List<HourlyWeather>){
                 modifier = Modifier
                     .height(100.dp)
                     .width(totalWidth)
-                    .padding(horizontal = 44.dp)
+                    .padding(horizontal = 44.dp, vertical = 4.dp)
             ) {
                 MakeTemperatureChart(modifier = Modifier.fillMaxWidth(), y = temperatures)
             }
