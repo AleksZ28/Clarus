@@ -118,7 +118,7 @@ fun HomeScreen(navController: NavController, viewModel: WeatherViewModel = remem
                         )
                 )
                 Text(
-                    text = " $currentTemp°",
+                    text = if (currentTemp >= 0) " $currentTemp°" else "$currentTemp°",
                     style = TextStyle(
                         color = WhiteTransparent,
                         fontSize = 128.sp,

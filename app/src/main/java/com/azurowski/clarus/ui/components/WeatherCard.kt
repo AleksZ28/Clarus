@@ -69,7 +69,7 @@ fun WeatherCard(modifier: Modifier = Modifier, day: Boolean, weatherSummary: Wea
             )
 
             Text(
-                text = " $temperature°",
+                text = if (temperature >= 0) " $temperature°" else "$temperature°",
                 style = TextStyle(
                     color = WhiteTransparent,
                     fontWeight = FontWeight.Black,
@@ -118,7 +118,7 @@ fun WeatherCard(modifier: Modifier = Modifier, day: Boolean, weatherSummary: Wea
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(vertical = 64.dp, horizontal = 18.dp)
-                .size(32.dp)
+                .size(24.dp)
         )
     }
 }
