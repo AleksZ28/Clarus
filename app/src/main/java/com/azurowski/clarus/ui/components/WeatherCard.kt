@@ -28,6 +28,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.azurowski.clarus.model.WeatherSummary
 import com.azurowski.clarus.ui.theme.Black70
 import com.azurowski.clarus.ui.theme.CardBackgrounds
@@ -36,7 +37,7 @@ import com.azurowski.clarus.ui.theme.WhiteTransparent
 import com.azurowski.clarus.ui.weather.getWeatherIcon
 
 @Composable
-fun WeatherCard(modifier: Modifier = Modifier, day: Boolean, weatherSummary: WeatherSummary){
+fun WeatherCard(modifier: Modifier = Modifier, day: Boolean, weatherSummary: WeatherSummary, navController: NavController){
     val lowestTemperature = weatherSummary.minTemperature
     val temperature = weatherSummary.medianTemperature
     val highestTemperature = weatherSummary.maxTemperature
@@ -50,7 +51,7 @@ fun WeatherCard(modifier: Modifier = Modifier, day: Boolean, weatherSummary: Wea
                 shape = RoundedCornerShape(16.dp)
             )
             .clickable(
-                onClick = {},
+                onClick = { navController.navigate("weatherSummary") },
                 interactionSource = remember { MutableInteractionSource() },
                 indication = ripple()
             )

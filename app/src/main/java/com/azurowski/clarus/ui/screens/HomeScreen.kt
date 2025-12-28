@@ -20,7 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +34,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.azurowski.clarus.WeatherApi
 import com.azurowski.clarus.ui.components.HourlyWeatherRow
@@ -44,6 +45,7 @@ import com.azurowski.clarus.ui.theme.WeatherBackgrounds
 import com.azurowski.clarus.ui.theme.WhiteTransparent
 import com.azurowski.clarus.ui.weather.WeatherUiState
 import com.azurowski.clarus.ui.weather.WeatherViewModel
+import com.azurowski.clarus.ui.weather.WeatherViewModelFactory
 import com.azurowski.clarus.ui.weather.getWeatherIcon
 import com.azurowski.clarus.ui.weather.mapCurrentWeather
 import com.azurowski.clarus.ui.weather.mapNext24Hours
@@ -55,21 +57,22 @@ import com.azurowski.clarus.ui.weather.parseNightWeather
 import com.google.android.gms.location.LocationServices
 import kotlin.math.round
 
-fun downloadWeather(latitude: Double?, longitude: Double?, viewModel: WeatherViewModel) {
+fun downloadWeather(latitude: Double?, longitude: Double?, viewModel: WeatherViewModel, forceRefresh: Boolean = false) {
     if(latitude != null && longitude != null) {
-        viewModel.fetchWeather(latitude, longitude)
+        viewModel.fetchWeather(latitude, longitude, forceRefresh)
     }
 }
 @Composable
-fun HomeScreen(navController: NavController, viewModel: WeatherViewModel = remember { WeatherViewModel(WeatherApi) }) {
+fun HomeScreen(navController: NavController) {
+    val viewModel: WeatherViewModel = viewModel(factory = WeatherViewModelFactory(WeatherApi))
     val state by viewModel.uiState.collectAsState()
     val isRefreshing = state is WeatherUiState.Loading
 
 
     val context = LocalContext.current
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-    var latitude by remember { mutableStateOf<Double?>(null) }
-    var longitude by remember { mutableStateOf<Double?>(null) }
+    var latitude by rememberSaveable { mutableStateOf<Double?>(null) }
+    var longitude by rememberSaveable { mutableStateOf<Double?>(null) }
 
     RequestLocationPermissions(
         onPermissionGranted = {
@@ -84,7 +87,7 @@ fun HomeScreen(navController: NavController, viewModel: WeatherViewModel = remem
 
     PullToRefreshBox(
         isRefreshing = isRefreshing,
-        onRefresh = { downloadWeather(latitude, longitude, viewModel) },
+        onRefresh = { downloadWeather(latitude, longitude, viewModel, true) },
         modifier = Modifier.fillMaxSize()
     ) {
         Column(
@@ -170,11 +173,11 @@ fun HomeScreen(navController: NavController, viewModel: WeatherViewModel = remem
                         horizontalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
                         if (!isCurrentDayNight){
-                            WeatherCard(modifier = Modifier.weight(1f), false, parsedNextNightWeather)
-                            WeatherCard(modifier = Modifier.weight(1f), true, parsedNextDayWeather)
+                            WeatherCard(modifier = Modifier.weight(1f), false, parsedNextNightWeather, navController)
+                            WeatherCard(modifier = Modifier.weight(1f), true, parsedNextDayWeather, navController)
                         } else {
-                            WeatherCard(modifier = Modifier.weight(1f), true, parsedNextDayWeather)
-                            WeatherCard(modifier = Modifier.weight(1f), false, parsedNextNightWeather)
+                            WeatherCard(modifier = Modifier.weight(1f), true, parsedNextDayWeather, navController)
+                            WeatherCard(modifier = Modifier.weight(1f), false, parsedNextNightWeather, navController)
                         }
 
                     }

@@ -40,7 +40,7 @@ import kotlin.collections.forEach
 @Composable
 fun HourlyWeatherRow(hourlyWeather: List<HourlyWeather>){
 
-    val temperatures = hourlyWeather.map { it -> it.temperature }
+    val temperatures = hourlyWeather.map { it.temperature }
 
     val scrollState = rememberScrollState()
 
