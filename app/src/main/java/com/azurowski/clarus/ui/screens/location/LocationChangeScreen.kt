@@ -1,4 +1,4 @@
-package com.azurowski.clarus.ui.screens.weather
+package com.azurowski.clarus.ui.screens.location
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -19,7 +19,7 @@ import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FullWeatherScreen(navController: NavController) {
+fun LocationChangeScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -27,7 +27,7 @@ fun FullWeatherScreen(navController: NavController) {
             .statusBarsPadding()
     ) {
         CenterAlignedTopAppBar(
-            title = { Text(text = "Pogoda") },
+            title = { Text(text = "Wybierz lokalizację") },
             navigationIcon = {
                 IconButton(onClick = {navController.popBackStack()}) {
                     Icon(
@@ -41,7 +41,7 @@ fun FullWeatherScreen(navController: NavController) {
             )
         )
         Column() {
-            Text(text = "Ekran pogody")
+            Text(text = "Wybór lokalizacji")
         }
 
     }
