@@ -72,6 +72,7 @@ private fun TemperatureChart(
         modelProducer,
         modifier.height(120.dp),
         rememberVicoScrollState(scrollEnabled = false),
+        animateIn = false
     )
 }
 
