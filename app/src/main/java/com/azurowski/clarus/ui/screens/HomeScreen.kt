@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -18,9 +19,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -28,10 +29,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -49,6 +52,7 @@ import com.azurowski.clarus.WeatherApi
 import com.azurowski.clarus.ui.components.HourlyWeatherRow
 import com.azurowski.clarus.ui.components.Label
 import com.azurowski.clarus.ui.components.WeatherCard
+import com.azurowski.clarus.ui.components.nav.NavBar
 import com.azurowski.clarus.ui.permissions.RequestLocationPermissions
 import com.azurowski.clarus.ui.theme.WeatherBackgrounds
 import com.azurowski.clarus.ui.theme.WhiteTransparent
@@ -64,6 +68,11 @@ import com.azurowski.clarus.ui.weather.mapWeatherBackground
 import com.azurowski.clarus.ui.weather.parseDayWeather
 import com.azurowski.clarus.ui.weather.parseNightWeather
 import com.google.android.gms.location.LocationServices
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
 import kotlin.math.round
 
 fun downloadWeather(latitude: Double?, longitude: Double?, viewModel: WeatherViewModel, forceRefresh: Boolean = false) {
@@ -94,6 +103,8 @@ fun HomeScreen(navController: NavController) {
         }
     )
 
+    val hazeState = remember { HazeState() }
+
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = { downloadWeather(latitude, longitude, viewModel, true) },
@@ -101,6 +112,7 @@ fun HomeScreen(navController: NavController) {
     ) {
         Column(
             modifier = Modifier
+                .hazeSource(hazeState)
                 .fillMaxSize()
                 .background(
                     brush = when (state) {
@@ -218,15 +230,22 @@ fun HomeScreen(navController: NavController) {
 //            }
         }
 
-        ExtendedFloatingActionButton(
-            text = { Text(text = "Twoja lokalizacja") },
-            icon = { Icon(Icons.Filled.LocationOn, contentDescription = "Lokalizacja") },
+        val buttonHazeStyle = HazeStyle(
+            tint = HazeTint(Color.White.copy(alpha = 0.6f)),
+            blurRadius = 8.dp
+        )
+        val buttonShape = RoundedCornerShape(50)
+
+        Button(
             onClick = { navController.navigate("locationChange") },
-            containerColor = Color.White,
-            shape = RoundedCornerShape(50),
-            elevation = FloatingActionButtonDefaults.elevation(0.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = Color.Black
+            ),
+            shape = buttonShape,
             modifier = Modifier
-                .padding(bottom = 32.dp)
+                .navigationBarsPadding()
+                .padding(bottom = 88.dp)
                 .height(48.dp)
                 .align(Alignment.BottomCenter)
                 .dropShadow(
@@ -237,6 +256,27 @@ fun HomeScreen(navController: NavController) {
                         alpha = 0.5f
                     }
                 )
+                .clip(buttonShape)
+                .hazeEffect(state = hazeState, style = buttonHazeStyle)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.LocationOn,
+                    contentDescription = "Lokalizacja"
+                )
+                Text(
+                    text = "Twoja lokalizacja",
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        }
+
+        NavBar(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            hazeState = hazeState
         )
     }
 }
