@@ -29,14 +29,16 @@ import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeEffect
 
-sealed class NavBarTab(val title: String, val icon: ImageVector) {
+sealed class NavBarTab(val title: String, val icon: ImageVector, val color: Color) {
     data object Weather : NavBarTab(
         title = "Prognoza",
-        icon = Icons.Default.WbSunny
+        icon = Icons.Default.WbSunny,
+        color = Color(0xFFFF9D00)
     )
     data object Moon : NavBarTab(
         title = "Księżyc",
-        icon = Icons.Default.NightsStay
+        icon = Icons.Default.NightsStay,
+        color = Color(0xFF855CFF)
     )
 }
 
