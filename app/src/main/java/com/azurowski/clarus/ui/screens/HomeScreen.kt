@@ -1,6 +1,5 @@
 package com.azurowski.clarus.ui.screens
 
-import android.R
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,7 +26,6 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -54,7 +52,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.azurowski.clarus.WeatherApi
@@ -136,7 +133,7 @@ fun HomeScreen(navController: NavController) {
                 )
                 .verticalScroll(rememberScrollState())
                 .padding(
-                    vertical = 30.dp
+                    vertical = 68.dp
                 )
                 .statusBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -279,11 +276,12 @@ fun HomeScreen(navController: NavController) {
                 contentColor = Color.Black
             ),
             shape = buttonShape,
-            contentPadding = PaddingValues(0.dp),
+            contentPadding = PaddingValues(12.dp),
             modifier = Modifier
                 .navigationBarsPadding()
-                .padding(vertical = 32.dp, horizontal = 16.dp)
-                .size(48.dp)
+                .statusBarsPadding()
+                .padding(16.dp)
+                .height(48.dp)
                 .border(
                     width = Dp.Hairline,
                     brush = Brush.verticalGradient(
@@ -306,17 +304,17 @@ fun HomeScreen(navController: NavController) {
                 .align(Alignment.TopStart)
         ) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Filled.LocationOn,
                     contentDescription = "Lokalizacja"
                 )
-//                    Text(
-//                        text = "Twoja lokalizacja",
-//                        fontWeight = FontWeight.Medium
-//                    )
+                Text(
+                    text = "Twoja lokalizacja",
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
 
