@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
 object CardBackgrounds {
     val Night = Brush.linearGradient(
         colors = listOf(
-            Color(0xFF855CFF),
+            MoonPurple,
             Color(0xFFA2ACCC)
         ),
         start = Offset(0f, 0f),

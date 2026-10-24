@@ -1,5 +1,6 @@
 package com.azurowski.clarus.ui.screens
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -60,6 +61,7 @@ import com.azurowski.clarus.ui.components.Label
 import com.azurowski.clarus.ui.components.WeatherCard
 import com.azurowski.clarus.ui.components.nav.NavBar
 import com.azurowski.clarus.ui.permissions.RequestLocationPermissions
+import com.azurowski.clarus.ui.screens.moon.MoonScreen
 import com.azurowski.clarus.ui.theme.WeatherBackgrounds
 import com.azurowski.clarus.ui.theme.WhiteTransparent
 import com.azurowski.clarus.ui.weather.WeatherUiState
@@ -86,8 +88,13 @@ fun downloadWeather(latitude: Double?, longitude: Double?, viewModel: WeatherVie
         viewModel.fetchWeather(latitude, longitude, forceRefresh)
     }
 }
+@SuppressLint("MissingPermission")
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    hazeState: HazeState = remember { HazeState() },
+    toLocationChange: (Double?, Double?) -> Unit,
+    toFullWeather: () -> Unit
+) {
     val viewModel: WeatherViewModel = viewModel(factory = WeatherViewModelFactory(WeatherApi))
     val state by viewModel.uiState.collectAsState()
     val isRefreshing = state is WeatherUiState.Loading
@@ -107,8 +114,6 @@ fun HomeScreen(navController: NavController) {
             }
         }
     )
-
-    val hazeState = remember { HazeState() }
 
     PullToRefreshBox(
         isRefreshing = isRefreshing,
@@ -231,11 +236,11 @@ fun HomeScreen(navController: NavController) {
                         horizontalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
                         if (!isCurrentDayNight){
-                            WeatherCard(modifier = Modifier.weight(1f), false, parsedNextNightWeather, navController)
-                            WeatherCard(modifier = Modifier.weight(1f), true, parsedNextDayWeather, navController)
+                            WeatherCard(modifier = Modifier.weight(1f), false, parsedNextNightWeather)
+                            WeatherCard(modifier = Modifier.weight(1f), true, parsedNextDayWeather)
                         } else {
-                            WeatherCard(modifier = Modifier.weight(1f), true, parsedNextDayWeather, navController)
-                            WeatherCard(modifier = Modifier.weight(1f), false, parsedNextNightWeather, navController)
+                            WeatherCard(modifier = Modifier.weight(1f), true, parsedNextDayWeather)
+                            WeatherCard(modifier = Modifier.weight(1f), false, parsedNextNightWeather)
                         }
 
                     }
@@ -270,7 +275,7 @@ fun HomeScreen(navController: NavController) {
 
 
         Button(
-            onClick = { navController.navigate("locationChange") },
+            onClick = { toLocationChange(longitude,latitude) },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
                 contentColor = Color.Black
@@ -317,11 +322,6 @@ fun HomeScreen(navController: NavController) {
                 )
             }
         }
-
-        NavBar(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            hazeState = hazeState
-        )
     }
 }
 
@@ -329,5 +329,8 @@ fun HomeScreen(navController: NavController) {
 @Preview
 @Composable
 fun HomePreview(){
-    HomeScreen(navController = NavController(LocalContext.current))
+    HomeScreen(
+        toLocationChange = { _, _ -> },
+        toFullWeather = {}
+    )
 }

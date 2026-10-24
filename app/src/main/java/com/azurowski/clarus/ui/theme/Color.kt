@@ -16,3 +16,9 @@ val White25 = Color(0x40FFFFFF)
 val Black70 = Color(0xB3000000)
 
 val WeatherBlue = Color(0xFF006AFF)
+
+val MoonPurple = Color(0xFF855CFF)
+
+val NewMoon = Color(0xFF1E2230)
+
+val FullMoon = Color(0xFFBCE7F4)

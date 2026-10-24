@@ -19,7 +19,9 @@ import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FullWeatherScreen(navController: NavController) {
+fun FullWeatherScreen(
+    back: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -29,7 +31,7 @@ fun FullWeatherScreen(navController: NavController) {
         CenterAlignedTopAppBar(
             title = { Text(text = "Pogoda") },
             navigationIcon = {
-                IconButton(onClick = {navController.popBackStack()}) {
+                IconButton(onClick = {back()}) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Wstecz"

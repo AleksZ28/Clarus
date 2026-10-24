@@ -11,10 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NightsStay
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,9 +44,13 @@ val tabs = listOf(
 )
 
 @Composable
-fun NavBar(modifier: Modifier, hazeState: HazeState) {
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
-
+fun NavBar(
+    modifier: Modifier = Modifier,
+    selectedTabIndex: Int = 0,
+    hazeState: HazeState,
+    Home: () -> Unit,
+    Moon: () -> Unit
+) {
     val hazeStyle = HazeStyle(
         tint = HazeTint(Color.White.copy(alpha = 0.7f)),
         blurRadius = 8.dp,
@@ -86,7 +86,12 @@ fun NavBar(modifier: Modifier, hazeState: HazeState) {
             tabs,
             selectedTab = selectedTabIndex,
             onTabSelected = {
-                selectedTabIndex = tabs.indexOf(it)
+                val index = tabs.indexOf(it)
+                if (index == 0) {
+                    Home()
+                } else {
+                    Moon()
+                }
             }
         )
     }

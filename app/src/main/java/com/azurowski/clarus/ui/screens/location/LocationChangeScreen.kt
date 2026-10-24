@@ -19,7 +19,11 @@ import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LocationChangeScreen(navController: NavController) {
+fun LocationChangeScreen(
+    longitude: Double?,
+    latitude: Double?,
+    back: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -29,7 +33,7 @@ fun LocationChangeScreen(navController: NavController) {
         CenterAlignedTopAppBar(
             title = { Text(text = "Wybierz lokalizację") },
             navigationIcon = {
-                IconButton(onClick = {navController.popBackStack()}) {
+                IconButton(onClick = {back()}) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Wstecz"
