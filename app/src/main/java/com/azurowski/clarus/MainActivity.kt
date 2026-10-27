@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.azurowski.clarus.ui.Navigation.NavigationRoot
+import com.azurowski.clarus.ui.theme.ClarusTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -12,7 +13,9 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-            NavigationRoot()
+            ClarusTheme{
+                NavigationRoot()
+            }
         }
     }
 }

@@ -1,10 +1,12 @@
 package com.azurowski.clarus.ui.screens
 
+import android.R
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +30,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -76,18 +79,39 @@ import com.azurowski.clarus.ui.weather.mapWeatherBackground
 import com.azurowski.clarus.ui.weather.parseDayWeather
 import com.azurowski.clarus.ui.weather.parseNightWeather
 import com.google.android.gms.location.LocationServices
+import dev.chrisbanes.haze.ExperimentalHazeApi
+import dev.chrisbanes.haze.HazeEffectFactory
+import dev.chrisbanes.haze.HazeInput
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.HazeStyle
-import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.blur.HazeBlurDefaults.blurRadius
+import dev.chrisbanes.haze.blur.HazeBlurDefaults.noiseFactor
+import dev.chrisbanes.haze.blur.HazeBlurStyle
+import dev.chrisbanes.haze.blur.HazeColorEffect
+import dev.chrisbanes.haze.blur.hazeBlur
+import dev.chrisbanes.haze.blur.material3.Material3
+import dev.chrisbanes.haze.blur.materials.HazeMaterials
+import dev.chrisbanes.haze.glass.GlassOptics
+import dev.chrisbanes.haze.glass.GlassStyle
+import dev.chrisbanes.haze.glass.OpticalSizeValue
+import dev.chrisbanes.haze.glass.SurfaceProfile
+import dev.chrisbanes.haze.glass.hazeGlass
+import dev.chrisbanes.haze.glass.material3.Material3
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import kotlin.math.round
 
-fun downloadWeather(latitude: Double?, longitude: Double?, viewModel: WeatherViewModel, forceRefresh: Boolean = false) {
-    if(latitude != null && longitude != null) {
+fun downloadWeather(
+    latitude: Double?,
+    longitude: Double?,
+    viewModel: WeatherViewModel,
+    forceRefresh: Boolean = false
+) {
+    if (latitude != null && longitude != null) {
         viewModel.fetchWeather(latitude, longitude, forceRefresh)
     }
 }
+
+@OptIn(ExperimentalHazeApi::class)
 @SuppressLint("MissingPermission")
 @Composable
 fun HomeScreen(
@@ -110,7 +134,8 @@ fun HomeScreen(
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
                     latitude = it.latitude
-                    longitude = it.longitude                }
+                    longitude = it.longitude
+                }
             }
         }
     )
@@ -120,12 +145,27 @@ fun HomeScreen(
         onRefresh = { downloadWeather(latitude, longitude, viewModel, true) },
         modifier = Modifier.fillMaxSize()
     ) {
-        val buttonHazeStyle = HazeStyle(
-            tint = HazeTint(Color.White.copy(alpha = 0.7f)),
-            blurRadius = 8.dp
+//        val buttonHazeStyle = HazeBlurStyle.Material3() {
+//            blurEnabled(true)
+//            blurRadius(8.dp)
+//            noiseFactor(.15f)
+//            colorEffects(listOf(HazeColorEffect.tint(Color.White.copy(alpha = 0.7f))))
+//        }
+        val optics = GlassOptics(
+            blurRadius = OpticalSizeValue.Fixed(30.dp),
+            refractionStrength = 0.9f,
+            refractionHeightFraction = 1f,
+            refractionDisplacement = 20.dp,
+            refractionFoldStrength = 0.7f,
+            depth = OpticalSizeValue.Fixed(0.8f),
         )
-        val buttonShape = CircleShape
+        val buttonHazeStyle = GlassStyle {
+            optics(optics)
+            surfaceProfile(SurfaceProfile.Squircle)
 
+        }
+        val buttonShape = CircleShape
+        val isDark = isSystemInDarkTheme()
         Column(
             modifier = Modifier
                 .hazeSource(hazeState)
@@ -149,14 +189,14 @@ fun HomeScreen(
                 is WeatherUiState.Idle -> Box(
                     modifier = Modifier
                         .padding(16.dp)
-                        .background(Color.White.copy(alpha = .7f), RoundedCornerShape(50.dp))
-                        .hazeEffect(state = hazeState, style = buttonHazeStyle)
+                        .background(Color.White.copy(alpha = .7f), buttonShape)
+                        .hazeGlass(style = buttonHazeStyle, input = HazeInput.Backdrop(hazeState))
                         .border(
                             width = Dp.Hairline,
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    Color.Black.copy(alpha = 0.6f),
-                                    Color.Black.copy(alpha = 0.2f)
+                                    Color.White.copy(alpha = 0.1f),
+                                    Color.White.copy(alpha = 0.02f)
                                 )
                             ),
                             shape = RoundedCornerShape(50.dp)
@@ -172,7 +212,8 @@ fun HomeScreen(
 
                         .padding(16.dp)
 
-                ){Text("Nie pobrano pogody")}
+                ) { Text("Nie pobrano pogody") }
+
                 is WeatherUiState.Loading -> CircularProgressIndicator()
                 is WeatherUiState.Success -> {
                     val currentWeather = (state as WeatherUiState.Success).data.current
@@ -225,8 +266,14 @@ fun HomeScreen(
                             .padding(horizontal = 30.dp),
                         horizontalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
-                        Label(text = if (!isCurrentDayNight) "Noc" else "Nadchodzący dzień", modifier = Modifier.weight(1f))
-                        Label(text = if (!isCurrentDayNight) "Jutro" else "Następna noc", modifier = Modifier.weight(1f))
+                        Label(
+                            text = if (!isCurrentDayNight) "Noc" else "Nadchodzący dzień",
+                            modifier = Modifier.weight(1f)
+                        )
+                        Label(
+                            text = if (!isCurrentDayNight) "Jutro" else "Następna noc",
+                            modifier = Modifier.weight(1f)
+                        )
                     }
 
                     Row(
@@ -235,12 +282,20 @@ fun HomeScreen(
                             .padding(start = 30.dp, end = 30.dp, bottom = 20.dp),
                         horizontalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
-                        if (!isCurrentDayNight){
-                            WeatherCard(modifier = Modifier.weight(1f), false, parsedNextNightWeather)
+                        if (!isCurrentDayNight) {
+                            WeatherCard(
+                                modifier = Modifier.weight(1f),
+                                false,
+                                parsedNextNightWeather
+                            )
                             WeatherCard(modifier = Modifier.weight(1f), true, parsedNextDayWeather)
                         } else {
                             WeatherCard(modifier = Modifier.weight(1f), true, parsedNextDayWeather)
-                            WeatherCard(modifier = Modifier.weight(1f), false, parsedNextNightWeather)
+                            WeatherCard(
+                                modifier = Modifier.weight(1f),
+                                false,
+                                parsedNextNightWeather
+                            )
                         }
 
                     }
@@ -275,10 +330,10 @@ fun HomeScreen(
 
 
         Button(
-            onClick = { toLocationChange(longitude,latitude) },
+            onClick = { toLocationChange(longitude, latitude) },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
-                contentColor = Color.Black
+                contentColor = MaterialTheme.colorScheme.onSurface
             ),
             shape = buttonShape,
             contentPadding = PaddingValues(12.dp),
@@ -291,8 +346,8 @@ fun HomeScreen(
                     width = Dp.Hairline,
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color.Black.copy(alpha = .6f),
-                            Color.Black.copy(alpha = .2f),
+                            Color.White.copy(alpha = .1f),
+                            Color.White.copy(alpha = .02f),
                         ),
                     ),
                     shape = CircleShape
@@ -305,7 +360,7 @@ fun HomeScreen(
                     }
                 )
                 .clip(buttonShape)
-                .hazeEffect(state = hazeState, style = buttonHazeStyle)
+                .hazeGlass(input = HazeInput.Backdrop(hazeState), style = buttonHazeStyle)
                 .align(Alignment.TopStart)
         ) {
             Row(
@@ -318,7 +373,7 @@ fun HomeScreen(
                 )
                 Text(
                     text = "Twoja lokalizacja",
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
                 )
             }
         }
@@ -328,7 +383,7 @@ fun HomeScreen(
 
 @Preview
 @Composable
-fun HomePreview(){
+fun HomePreview() {
     HomeScreen(
         toLocationChange = { _, _ -> },
         toFullWeather = {}
