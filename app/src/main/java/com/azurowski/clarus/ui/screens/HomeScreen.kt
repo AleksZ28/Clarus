@@ -1,9 +1,11 @@
 package com.azurowski.clarus.ui.screens
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +29,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -53,12 +56,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.azurowski.clarus.WeatherApi
 import com.azurowski.clarus.ui.components.HourlyWeatherRow
 import com.azurowski.clarus.ui.components.Label
 import com.azurowski.clarus.ui.components.WeatherCard
-import com.azurowski.clarus.ui.components.nav.NavBar
 import com.azurowski.clarus.ui.permissions.RequestLocationPermissions
 import com.azurowski.clarus.ui.theme.WeatherBackgrounds
 import com.azurowski.clarus.ui.theme.WhiteTransparent
@@ -74,20 +75,36 @@ import com.azurowski.clarus.ui.weather.mapWeatherBackground
 import com.azurowski.clarus.ui.weather.parseDayWeather
 import com.azurowski.clarus.ui.weather.parseNightWeather
 import com.google.android.gms.location.LocationServices
+import dev.chrisbanes.haze.ExperimentalHazeApi
+import dev.chrisbanes.haze.HazeInput
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.HazeStyle
-import dev.chrisbanes.haze.HazeTint
-import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.glass.GlassOptics
+import dev.chrisbanes.haze.glass.GlassStyle
+import dev.chrisbanes.haze.glass.OpticalSizeValue
+import dev.chrisbanes.haze.glass.SurfaceProfile
+import dev.chrisbanes.haze.glass.hazeGlass
 import dev.chrisbanes.haze.hazeSource
 import kotlin.math.round
 
-fun downloadWeather(latitude: Double?, longitude: Double?, viewModel: WeatherViewModel, forceRefresh: Boolean = false) {
-    if(latitude != null && longitude != null) {
+fun downloadWeather(
+    latitude: Double?,
+    longitude: Double?,
+    viewModel: WeatherViewModel,
+    forceRefresh: Boolean = false
+) {
+    if (latitude != null && longitude != null) {
         viewModel.fetchWeather(latitude, longitude, forceRefresh)
     }
 }
+
+@OptIn(ExperimentalHazeApi::class)
+@SuppressLint("MissingPermission")
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    hazeState: HazeState = remember { HazeState() },
+    toLocationChange: (Double?, Double?) -> Unit,
+    toFullWeather: () -> Unit
+) {
     val viewModel: WeatherViewModel = viewModel(factory = WeatherViewModelFactory(WeatherApi))
     val state by viewModel.uiState.collectAsState()
     val isRefreshing = state is WeatherUiState.Loading
@@ -103,24 +120,38 @@ fun HomeScreen(navController: NavController) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
                     latitude = it.latitude
-                    longitude = it.longitude                }
+                    longitude = it.longitude
+                }
             }
         }
     )
-
-    val hazeState = remember { HazeState() }
 
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = { downloadWeather(latitude, longitude, viewModel, true) },
         modifier = Modifier.fillMaxSize()
     ) {
-        val buttonHazeStyle = HazeStyle(
-            tint = HazeTint(Color.White.copy(alpha = 0.7f)),
-            blurRadius = 8.dp
+//        val buttonHazeStyle = HazeBlurStyle.Material3() {
+//            blurEnabled(true)
+//            blurRadius(8.dp)
+//            noiseFactor(.15f)
+//            colorEffects(listOf(HazeColorEffect.tint(Color.White.copy(alpha = 0.7f))))
+//        }
+        val optics = GlassOptics(
+            blurRadius = OpticalSizeValue.Fixed(30.dp),
+            refractionStrength = 0.9f,
+            refractionHeightFraction = 1f,
+            refractionDisplacement = 20.dp,
+            refractionFoldStrength = 0.7f,
+            depth = OpticalSizeValue.Fixed(0.8f),
         )
-        val buttonShape = CircleShape
+        val buttonHazeStyle = GlassStyle {
+            optics(optics)
+            surfaceProfile(SurfaceProfile.Squircle)
 
+        }
+        val buttonShape = CircleShape
+        val isDark = isSystemInDarkTheme()
         Column(
             modifier = Modifier
                 .hazeSource(hazeState)
@@ -144,14 +175,14 @@ fun HomeScreen(navController: NavController) {
                 is WeatherUiState.Idle -> Box(
                     modifier = Modifier
                         .padding(16.dp)
-                        .background(Color.White.copy(alpha = .7f), RoundedCornerShape(50.dp))
-                        .hazeEffect(state = hazeState, style = buttonHazeStyle)
+                        .background(Color.White.copy(alpha = .7f), buttonShape)
+                        .hazeGlass(style = buttonHazeStyle, input = HazeInput.Backdrop(hazeState))
                         .border(
                             width = Dp.Hairline,
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    Color.Black.copy(alpha = 0.6f),
-                                    Color.Black.copy(alpha = 0.2f)
+                                    Color.White.copy(alpha = 0.1f),
+                                    Color.White.copy(alpha = 0.02f)
                                 )
                             ),
                             shape = RoundedCornerShape(50.dp)
@@ -167,7 +198,8 @@ fun HomeScreen(navController: NavController) {
 
                         .padding(16.dp)
 
-                ){Text("Nie pobrano pogody")}
+                ) { Text("Nie pobrano pogody") }
+
                 is WeatherUiState.Loading -> CircularProgressIndicator()
                 is WeatherUiState.Success -> {
                     val currentWeather = (state as WeatherUiState.Success).data.current
@@ -220,8 +252,14 @@ fun HomeScreen(navController: NavController) {
                             .padding(horizontal = 30.dp),
                         horizontalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
-                        Label(text = if (!isCurrentDayNight) "Noc" else "Nadchodzący dzień", modifier = Modifier.weight(1f))
-                        Label(text = if (!isCurrentDayNight) "Jutro" else "Następna noc", modifier = Modifier.weight(1f))
+                        Label(
+                            text = if (!isCurrentDayNight) "Noc" else "Nadchodzący dzień",
+                            modifier = Modifier.weight(1f)
+                        )
+                        Label(
+                            text = if (!isCurrentDayNight) "Jutro" else "Następna noc",
+                            modifier = Modifier.weight(1f)
+                        )
                     }
 
                     Row(
@@ -230,12 +268,32 @@ fun HomeScreen(navController: NavController) {
                             .padding(start = 30.dp, end = 30.dp, bottom = 20.dp),
                         horizontalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
-                        if (!isCurrentDayNight){
-                            WeatherCard(modifier = Modifier.weight(1f), false, parsedNextNightWeather, navController)
-                            WeatherCard(modifier = Modifier.weight(1f), true, parsedNextDayWeather, navController)
+                        if (!isCurrentDayNight) {
+                            WeatherCard(
+                                modifier = Modifier.weight(1f),
+                                day = false,
+                                weatherSummary = parsedNextNightWeather,
+                                onClick = toFullWeather
+                            )
+                            WeatherCard(
+                                modifier = Modifier.weight(1f),
+                                day = true,
+                                weatherSummary = parsedNextDayWeather,
+                                onClick = toFullWeather
+                            )
                         } else {
-                            WeatherCard(modifier = Modifier.weight(1f), true, parsedNextDayWeather, navController)
-                            WeatherCard(modifier = Modifier.weight(1f), false, parsedNextNightWeather, navController)
+                            WeatherCard(
+                                modifier = Modifier.weight(1f),
+                                day = true,
+                                weatherSummary = parsedNextDayWeather,
+                                onClick = toFullWeather
+                            )
+                            WeatherCard(
+                                modifier = Modifier.weight(1f),
+                                day = false,
+                                weatherSummary = parsedNextNightWeather,
+                                onClick = toFullWeather
+                            )
                         }
 
                     }
@@ -270,10 +328,10 @@ fun HomeScreen(navController: NavController) {
 
 
         Button(
-            onClick = { navController.navigate("locationChange") },
+            onClick = { toLocationChange(longitude, latitude) },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
-                contentColor = Color.Black
+                contentColor = MaterialTheme.colorScheme.onSurface
             ),
             shape = buttonShape,
             contentPadding = PaddingValues(12.dp),
@@ -286,8 +344,8 @@ fun HomeScreen(navController: NavController) {
                     width = Dp.Hairline,
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color.Black.copy(alpha = .6f),
-                            Color.Black.copy(alpha = .2f),
+                            Color.White.copy(alpha = .1f),
+                            Color.White.copy(alpha = .02f),
                         ),
                     ),
                     shape = CircleShape
@@ -300,7 +358,7 @@ fun HomeScreen(navController: NavController) {
                     }
                 )
                 .clip(buttonShape)
-                .hazeEffect(state = hazeState, style = buttonHazeStyle)
+                .hazeGlass(input = HazeInput.Backdrop(hazeState), style = buttonHazeStyle)
                 .align(Alignment.TopStart)
         ) {
             Row(
@@ -313,21 +371,19 @@ fun HomeScreen(navController: NavController) {
                 )
                 Text(
                     text = "Twoja lokalizacja",
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
                 )
             }
         }
-
-        NavBar(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            hazeState = hazeState
-        )
     }
 }
 
 
 @Preview
 @Composable
-fun HomePreview(){
-    HomeScreen(navController = NavController(LocalContext.current))
+fun HomePreview() {
+    HomeScreen(
+        toLocationChange = { _, _ -> },
+        toFullWeather = {}
+    )
 }

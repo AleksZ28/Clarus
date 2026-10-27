@@ -10,11 +10,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NightsStay
 import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,9 +22,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.chrisbanes.haze.ExperimentalHazeApi
+import dev.chrisbanes.haze.HazeInput
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.HazeStyle
-import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.blur.HazeBlurStyle
+import dev.chrisbanes.haze.blur.HazeColorEffect
+import dev.chrisbanes.haze.blur.hazeBlur
+import dev.chrisbanes.haze.blur.material3.Material3
+import dev.chrisbanes.haze.glass.GlassOptics
+import dev.chrisbanes.haze.glass.GlassStyle
+import dev.chrisbanes.haze.glass.OpticalSizeValue
+import dev.chrisbanes.haze.glass.SurfaceProfile
+import dev.chrisbanes.haze.glass.hazeGlass
 import dev.chrisbanes.haze.hazeEffect
 
 sealed class NavBarTab(val title: String, val icon: ImageVector, val color: Color) {
@@ -47,47 +54,74 @@ val tabs = listOf(
     NavBarTab.Moon,
 )
 
+@OptIn(ExperimentalHazeApi::class)
 @Composable
-fun NavBar(modifier: Modifier, hazeState: HazeState) {
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
-
-    val hazeStyle = HazeStyle(
-        tint = HazeTint(Color.White.copy(alpha = 0.7f)),
-        blurRadius = 8.dp,
+fun NavBar(
+    modifier: Modifier = Modifier,
+    selectedTabIndex: Int = 0,
+    hazeState: HazeState,
+    Home: () -> Unit,
+    Moon: () -> Unit
+) {
+//    val hazeStyle = HazeBlurStyle.Material3() {
+//        blurEnabled(true)
+//        blurRadius(8.dp)
+//        noiseFactor(.15f)
+//        colorEffects(listOf(HazeColorEffect.tint(Color.White.copy(alpha = 0.7f))))
+//    }
+    val optics = GlassOptics(
+        blurRadius = OpticalSizeValue.Fixed(30.dp),
+        refractionStrength = 0.9f,
+        refractionHeightFraction = 1f,
+        refractionDisplacement = 20.dp,
+        refractionFoldStrength = 0.7f,
+        depth = OpticalSizeValue.Fixed(0.8f),
     )
+    val hazeStyle = GlassStyle{
+        optics(optics)
+        surfaceProfile(SurfaceProfile.Squircle)
 
-    Box(
-        modifier = modifier
-            .navigationBarsPadding()
-            .padding(vertical = 12.dp)
-            .height(64.dp)
-            .clip(RoundedCornerShape(100))
-            .hazeEffect(state = hazeState, style = hazeStyle)
-            .border(
-                width = Dp.Hairline,
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.Black.copy(alpha = .6f),
-                        Color.Black.copy(alpha = .2f),
-                    ),
-                ),
-                shape = CircleShape
-            )
-            .dropShadow(
-                shape = CircleShape,
-                block = {
-                    radius = 5f
-                    alpha = 0.1f
-                }
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        NavBarTabs(
-            tabs,
-            selectedTab = selectedTabIndex,
-            onTabSelected = {
-                selectedTabIndex = tabs.indexOf(it)
-            }
-        )
     }
+
+        Box(
+            modifier = modifier
+                .navigationBarsPadding()
+                .padding(vertical = 12.dp)
+                .height(64.dp)
+                .clip(RoundedCornerShape(100))
+                .hazeGlass(input = HazeInput.Backdrop(hazeState), style = hazeStyle)
+                .border(
+                    width = Dp.Hairline,
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = .1f),
+                            Color.White.copy(alpha = .02f),
+                        ),
+                    ),
+                    shape = CircleShape
+                )
+                .dropShadow(
+                    shape = CircleShape,
+                    block = {
+                        radius = 5f
+                        alpha = 0.1f
+                    }
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            NavBarTabs(
+                tabs,
+                selectedTab = selectedTabIndex,
+                onTabSelected = {
+                    val index = tabs.indexOf(it)
+                    if (index == 0) {
+                        Home()
+                    } else {
+                        Moon()
+                    }
+                }
+            )
+
+    }
+
 }

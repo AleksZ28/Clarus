@@ -1,8 +1,14 @@
 [versions]
 agp = "9.2.1"
-haze = "1.7.2"
-hazeMaterials = "1.7.2"
-kastro = "0.5.0"
+haze = "2.0.1"
+hazeBlur = "2.0.1"
+hazeBlurMaterial3 = "2.0.1"
+hazeBlurMaterials = "2.0.1"
+hazeGlass = "2.0.1"
+hazeGlassMaterial3 = "2.0.1"
+hazeMaterials = "1.7.3"
+hazeMaterialsVersion = "2.0.0"
+kastro = "0.6.0"
 kotlin = "2.3.21"
 coreKtx = "1.18.0"
 junit = "4.13.2"
@@ -18,14 +24,27 @@ activityCompose = "1.13.0"
 composeBom = "2026.05.01"
 playServicesLocation = "21.3.0"
 vico = "2.3.6"
-navigationCompose = "2.9.8"
+navigationCompose = "2.10.2"
+nav3Core = "1.2.0"
+lifecycleViewmodelNav3 = "2.12.0-alpha04"
+kotlinSerialization = "2.2.21"
+kotlinxSerializationCore = "1.9.0"
+material3AdaptiveNav3 = "1.4.0-alpha02"
 material3 = "1.4.0"
+composeIcons = "1.1.1"
+kotlinxDatetime = "0.8.0"
 
 [libraries]
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
+haze-blur = { module = "dev.chrisbanes.haze:haze-blur", version.ref = "hazeBlur" }
+haze-blur-material3 = { module = "dev.chrisbanes.haze:haze-blur-material3", version.ref = "hazeBlurMaterial3" }
+haze-blur-materials = { module = "dev.chrisbanes.haze:haze-blur-materials", version.ref = "hazeBlurMaterials" }
+haze-glass = { module = "dev.chrisbanes.haze:haze-glass", version.ref = "hazeGlass" }
+haze-glass-material3 = { module = "dev.chrisbanes.haze:haze-glass-material3", version.ref = "hazeGlassMaterial3" }
 haze-materials = { module = "dev.chrisbanes.haze:haze-materials", version.ref = "hazeMaterials" }
+haze-materials-v200 = { module = "dev.chrisbanes.haze:haze-materials", version.ref = "hazeMaterialsVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -40,6 +59,7 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 kastro = { module = "dev.jamesyox:kastro", version.ref = "kastro" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktorClientCio" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktorClientContentNegotiation" }
@@ -49,9 +69,16 @@ play-services-location = { group = "com.google.android.gms", name = "play-servic
 vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
+androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
+androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }
+androidx-material3-adaptive-navigation3 = { group = "androidx.compose.material3.adaptive", name = "adaptive-navigation3", version.ref = "material3AdaptiveNav3" }
+compose-icons-weather = { module = "br.com.devsrsouza.compose.icons:erikflowers-weather-icons", version.ref = "composeIcons" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}
+jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerialization"}
 
