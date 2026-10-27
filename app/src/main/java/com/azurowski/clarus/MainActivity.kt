@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.azurowski.clarus.ui.Navigation.NavigationRoot
+import com.azurowski.clarus.ui.navigation.NavigationRoot
 import com.azurowski.clarus.ui.theme.ClarusTheme
 
 class MainActivity : ComponentActivity() {

@@ -1,6 +1,5 @@
 package com.azurowski.clarus.ui.screens
 
-import android.R
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -57,14 +56,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.azurowski.clarus.WeatherApi
 import com.azurowski.clarus.ui.components.HourlyWeatherRow
 import com.azurowski.clarus.ui.components.Label
 import com.azurowski.clarus.ui.components.WeatherCard
-import com.azurowski.clarus.ui.components.nav.NavBar
 import com.azurowski.clarus.ui.permissions.RequestLocationPermissions
-import com.azurowski.clarus.ui.screens.moon.MoonScreen
 import com.azurowski.clarus.ui.theme.WeatherBackgrounds
 import com.azurowski.clarus.ui.theme.WhiteTransparent
 import com.azurowski.clarus.ui.weather.WeatherUiState
@@ -80,23 +76,13 @@ import com.azurowski.clarus.ui.weather.parseDayWeather
 import com.azurowski.clarus.ui.weather.parseNightWeather
 import com.google.android.gms.location.LocationServices
 import dev.chrisbanes.haze.ExperimentalHazeApi
-import dev.chrisbanes.haze.HazeEffectFactory
 import dev.chrisbanes.haze.HazeInput
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.blur.HazeBlurDefaults.blurRadius
-import dev.chrisbanes.haze.blur.HazeBlurDefaults.noiseFactor
-import dev.chrisbanes.haze.blur.HazeBlurStyle
-import dev.chrisbanes.haze.blur.HazeColorEffect
-import dev.chrisbanes.haze.blur.hazeBlur
-import dev.chrisbanes.haze.blur.material3.Material3
-import dev.chrisbanes.haze.blur.materials.HazeMaterials
 import dev.chrisbanes.haze.glass.GlassOptics
 import dev.chrisbanes.haze.glass.GlassStyle
 import dev.chrisbanes.haze.glass.OpticalSizeValue
 import dev.chrisbanes.haze.glass.SurfaceProfile
 import dev.chrisbanes.haze.glass.hazeGlass
-import dev.chrisbanes.haze.glass.material3.Material3
-import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import kotlin.math.round
 
@@ -285,16 +271,28 @@ fun HomeScreen(
                         if (!isCurrentDayNight) {
                             WeatherCard(
                                 modifier = Modifier.weight(1f),
-                                false,
-                                parsedNextNightWeather
+                                day = false,
+                                weatherSummary = parsedNextNightWeather,
+                                onClick = toFullWeather
                             )
-                            WeatherCard(modifier = Modifier.weight(1f), true, parsedNextDayWeather)
-                        } else {
-                            WeatherCard(modifier = Modifier.weight(1f), true, parsedNextDayWeather)
                             WeatherCard(
                                 modifier = Modifier.weight(1f),
-                                false,
-                                parsedNextNightWeather
+                                day = true,
+                                weatherSummary = parsedNextDayWeather,
+                                onClick = toFullWeather
+                            )
+                        } else {
+                            WeatherCard(
+                                modifier = Modifier.weight(1f),
+                                day = true,
+                                weatherSummary = parsedNextDayWeather,
+                                onClick = toFullWeather
+                            )
+                            WeatherCard(
+                                modifier = Modifier.weight(1f),
+                                day = false,
+                                weatherSummary = parsedNextNightWeather,
+                                onClick = toFullWeather
                             )
                         }
 

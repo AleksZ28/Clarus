@@ -1,4 +1,4 @@
-package com.azurowski.clarus.ui.Navigation
+package com.azurowski.clarus.ui.navigation
 
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable

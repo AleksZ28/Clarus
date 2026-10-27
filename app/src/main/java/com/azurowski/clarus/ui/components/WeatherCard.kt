@@ -37,7 +37,12 @@ import com.azurowski.clarus.ui.theme.WhiteTransparent
 import com.azurowski.clarus.ui.weather.getWeatherIcon
 
 @Composable
-fun WeatherCard(modifier: Modifier = Modifier, day: Boolean, weatherSummary: WeatherSummary){
+fun WeatherCard(
+    modifier: Modifier = Modifier,
+    day: Boolean,
+    weatherSummary: WeatherSummary,
+    onClick: () -> Unit = {}
+){
     val lowestTemperature = weatherSummary.minTemperature
     val temperature = weatherSummary.medianTemperature
     val highestTemperature = weatherSummary.maxTemperature
@@ -51,13 +56,13 @@ fun WeatherCard(modifier: Modifier = Modifier, day: Boolean, weatherSummary: Wea
                 shape = RoundedCornerShape(16.dp)
             )
             .clickable(
-                onClick = {  },
+                onClick = onClick,
                 interactionSource = remember { MutableInteractionSource() },
                 indication = ripple()
             )
     ) {
         Column(
-            modifier = modifier.padding(20.dp),
+            modifier = Modifier.padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(

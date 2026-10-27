@@ -1,4 +1,4 @@
-package com.azurowski.clarus.ui.Navigation
+package com.azurowski.clarus.ui.navigation
 
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -24,7 +24,6 @@ import com.azurowski.clarus.ui.screens.weather.FullWeatherScreen
 import dev.chrisbanes.haze.HazeState
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
-import kotlinx.serialization.modules.subclass
 
 @Composable
 fun NavigationRoot(){
