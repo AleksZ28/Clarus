@@ -1,5 +1,6 @@
 [versions]
 agp = "9.2.1"
+fontAwesome = "2.1.0"
 haze = "2.0.1"
 hazeBlur = "2.0.1"
 hazeBlurMaterial3 = "2.0.1"
@@ -23,6 +24,7 @@ lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.13.0"
 composeBom = "2026.05.01"
 playServicesLocation = "21.3.0"
+tablerIcons = "1.1.1"
 vico = "2.3.6"
 navigationCompose = "2.10.2"
 nav3Core = "1.2.0"
@@ -37,6 +39,7 @@ kotlinxDatetime = "0.8.0"
 [libraries]
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+font-awesome = { module = "com.github.joaocsousa:font-awesome", version.ref = "fontAwesome" }
 haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
 haze-blur = { module = "dev.chrisbanes.haze:haze-blur", version.ref = "hazeBlur" }
 haze-blur-material3 = { module = "dev.chrisbanes.haze:haze-blur-material3", version.ref = "hazeBlurMaterial3" }
@@ -66,6 +69,7 @@ ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negoti
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorClientCore" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorSerializationKotlinxJson" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+tabler-icons = { module = "br.com.devsrsouza.compose.icons:tabler-icons", version.ref = "tablerIcons" }
 vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }

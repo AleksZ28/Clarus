@@ -2,6 +2,7 @@ package com.azurowski.clarus.ui.screens.moon
 
 import android.R
 import android.annotation.SuppressLint
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.scrollable
@@ -19,8 +20,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,6 +52,8 @@ import androidx.compose.ui.unit.sp
 import com.azurowski.clarus.ui.moonUtils.getMoonBackground
 import com.azurowski.clarus.ui.moonUtils.getMoonIcon
 import com.azurowski.clarus.ui.moonUtils.getMoonPhase
+import com.azurowski.clarus.ui.moonUtils.getMoonZodiacSign
+import com.azurowski.clarus.ui.moonUtils.getPhaseData
 import com.azurowski.clarus.ui.permissions.RequestLocationPermissions
 import com.azurowski.clarus.ui.theme.FullMoon
 import com.azurowski.clarus.ui.theme.MoonPhasesBackgrounds
@@ -70,10 +80,12 @@ import dev.chrisbanes.haze.glass.material3.material3
 import dev.chrisbanes.haze.hazeSource
 import dev.jamesyox.kastro.luna.LunarEvent
 import dev.jamesyox.kastro.luna.LunarEventSequence
+import dev.jamesyox.kastro.luna.LunarPhaseSequence
 import dev.jamesyox.kastro.luna.calculateLunarState
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
+import kotlinx.datetime.format.DateTimeFormat
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
@@ -81,6 +93,7 @@ import java.math.RoundingMode
 import java.time.format.DateTimeFormatter
 import java.util.regex.Pattern
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 
 @OptIn(ExperimentalHazeApi::class)
 @SuppressLint("MissingPermission")
@@ -88,7 +101,7 @@ import kotlin.time.Clock
 fun MoonScreen(
     hazeState: HazeState = remember { HazeState() }
 ) {
-    val clock = Clock.System
+    val clock = remember{Clock.System}
     val context = LocalContext.current
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     var longitude by rememberSaveable { mutableStateOf<Double>(0.0) }
@@ -102,10 +115,10 @@ fun MoonScreen(
             }
         }
     )
-    val moonState = clock.now().calculateLunarState(
+    val moonState = remember(longitude,latitude,clock){clock.now().calculateLunarState(
         longitude = longitude,
         latitude = latitude
-    )
+    )}
     val optics = GlassOptics(
         blurRadius = OpticalSizeValue.Fixed(30.dp),
         refractionStrength = 0.9f,
@@ -114,9 +127,10 @@ fun MoonScreen(
         refractionFoldStrength = 0.7f,
         depth = OpticalSizeValue.Fixed(0.8f),
     )
-    val hazeStyle = GlassStyle{
+    val hazeStyle = GlassStyle.clear.material3().then{
         optics(optics)
         surfaceProfile(SurfaceProfile.Squircle)
+        tint(Color.White.copy(alpha = 0.08f))
 
     }
 //    val hazeStyle = HazeBlurStyle.Material3() {
@@ -125,33 +139,30 @@ fun MoonScreen(
 //        noiseFactor(.08f)
 //        colorEffects(listOf(HazeColorEffect.tint(Color.White.copy(alpha = 0.70f))))
 //    }
+Box(
+    modifier = Modifier
+        .fillMaxSize()
 
-    Column (
+) {
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(brush = getMoonBackground(moonState.illumination.phase))
-            .statusBarsPadding()
             .hazeSource(hazeState)
-            .padding(top=24.dp)
-            ,
+            .background(brush = getMoonBackground(moonState.illumination.phase))
+    ){
+
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .statusBarsPadding()
+            .padding(top = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
 
 
-    ) {
-//        Box(
-//            modifier = Modifier
-//                .size(100.dp)
-//                .align(Alignment.TopCenter)
-//                .offset(y = 50.dp)
-//                .background(
-//                    brush = Brush.radialGradient(
-//                        colors = listOf(
-//                            FullMoon.copy(alpha = 0.35f),
-//                            Color.Transparent
-//                        )
-//                    )
-//                )
-//        ){}
+        ) {
         Icon(
             tint = FullMoon,
             modifier = Modifier
@@ -159,10 +170,10 @@ fun MoonScreen(
             imageVector = getMoonIcon(moonState.illumination.phase),
             contentDescription = "Faza księżyca",
 
-        )
+            )
         Text(
             text = getMoonPhase(moonState.illumination.phase),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onSurface,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
@@ -177,8 +188,8 @@ fun MoonScreen(
                     width = Dp.Hairline,
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color.Black.copy(alpha = .25f),
-                            Color.Black.copy(alpha = .1f),
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = .25f),
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = .1f),
                         ),
                     ),
                     shape = RoundedCornerShape(25.dp)
@@ -186,7 +197,7 @@ fun MoonScreen(
                 .dropShadow(
                     shape = RoundedCornerShape(25.dp),
                     block = {
-                        radius = 20f
+                        radius = 2f
                         alpha = 0.25f
                     }
                 )
@@ -200,27 +211,49 @@ fun MoonScreen(
             horizontalArrangement = Arrangement.SpaceBetween
 
         ) {
-            val nextMoonRise = LunarEventSequence(
+            val nextMoonHorizonEvents = remember(longitude,latitude,clock){LunarEventSequence(
                 start = clock.now(),
                 longitude = longitude,
                 latitude = latitude,
-                requestedLunarEvents = listOf(LunarEvent.HorizonEvent.Moonrise)
-            ).first().time.toLocalDateTime(TimeZone.currentSystemDefault()).let { localTime ->
-                String.format("%02d:%02d:%02d",localTime.hour,localTime.minute,localTime.second)
-            }?: "Brak danych"
-            val moonPercentage = BigDecimal(moonState.illumination.fraction*100).setScale(2,RoundingMode.HALF_UP)
+                requestedLunarEvents = listOf(
+                    LunarEvent.HorizonEvent.Moonrise,
+                    LunarEvent.HorizonEvent.Moonset
+                )
+            )}
+            val nextMoonRise =remember(longitude,latitude,clock){
+                nextMoonHorizonEvents.first().time.toLocalDateTime(TimeZone.currentSystemDefault())
+                    .let { localTime ->
+                        String.format(
+                            "%02d:%02d:%02d",
+                            localTime.hour,
+                            localTime.minute,
+                            localTime.second
+                        )
+                    } ?: "Brak danych"}
+            val nextMoonSet =remember(longitude,latitude,clock){
+                nextMoonHorizonEvents.last().time.toLocalDateTime(TimeZone.currentSystemDefault())
+                    .let { localTime ->
+                        String.format(
+                            "%02d:%02d:%02d",
+                            localTime.hour,
+                            localTime.minute,
+                            localTime.second
+                        )
+                    } ?: "Brak danych"}
+            val moonPercentage =
+                BigDecimal(moonState.illumination.fraction * 100).setScale(2, RoundingMode.HALF_UP)
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Icon(
                     contentDescription = "Wschód ksieżyca",
                     imageVector = WeatherIcons.Moonrise,
-                    tint = Color.White,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(40.dp)
                 )
                 Text(
                     text = nextMoonRise,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
             Column(
@@ -230,12 +263,12 @@ fun MoonScreen(
             ) {
                 Text(
                     text = "Oświetlenie księżyca",
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
-                    text = moonPercentage.toString()+"%",
-                    color = Color.White,
+                    text = moonPercentage.toString() + "%",
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Medium
                 )
 
@@ -247,15 +280,181 @@ fun MoonScreen(
                 Icon(
                     contentDescription = "Zachód ksieżyca",
                     imageVector = WeatherIcons.Moonset,
-                    tint = Color.White,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(40.dp)
                 )
                 Text(
-                    text = nextMoonRise,
-                    color = Color.White
+                    text = nextMoonSet,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
+        }
+        HorizontalDivider(modifier = Modifier.padding(10.dp),color = MaterialTheme.colorScheme.onSurface)
+        Text(
+            text = "Nadchodzące fazy księżyca",
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            modifier = Modifier
+                .padding(top = 16.dp,bottom=24.dp)
+        )
+        val upcomingMoonPhases = remember(clock){LunarPhaseSequence(
+            start = clock.now(),
+            requestedLunarPhases = listOf(
+                LunarEvent.PhaseEvent.FullMoon,
+                LunarEvent.PhaseEvent.NewMoon,
+                LunarEvent.PhaseEvent.FirstQuarter,
+                LunarEvent.PhaseEvent.LastQuarter
+            ),
+            limit = 30.days
+        ).toList()}
+
+
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            upcomingMoonPhases.chunked(2).forEach { rowItems ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    rowItems.forEach { phaseEvent ->
+                        Box(modifier = Modifier
+                            .weight(1f)
+                            .dropShadow(
+                                shape = RoundedCornerShape(25.dp),
+                                block = {
+                                    radius = 2f
+                                    alpha = 0.1f
+                                }
+
+                            )
+                            .border(
+                                width = Dp.Hairline,
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        MaterialTheme.colorScheme.onSurface.copy(alpha = .25f),
+                                        MaterialTheme.colorScheme.onSurface.copy(alpha = .1f),
+                                    ),
+                                ),
+                                shape = RoundedCornerShape(25.dp))
+                            .clip(RoundedCornerShape(25.dp))
+                            .hazeGlass(input = HazeInput.Backdrop(hazeState), style = hazeStyle)
+                            .padding(8.dp)
+
+                        ) {
+                            val currentUpcomingEvent = getPhaseData(phaseEvent)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceAround,
+                                verticalAlignment = Alignment.CenterVertically
+                            )
+                            {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = currentUpcomingEvent.first,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = phaseEvent.time.toLocalDateTime(TimeZone.currentSystemDefault())
+                                            .let { localTime ->
+                                                String.format(
+                                                    "%02d.%02d.%04d",
+                                                    localTime.day,
+                                                    localTime.monthNumber,
+                                                    localTime.year
+                                                )
+                                            },
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = phaseEvent.time.toLocalDateTime(TimeZone.currentSystemDefault())
+                                            .let { localTime ->
+                                                String.format(
+                                                    "%02d:%02d:%02d",
+                                                    localTime.hour,
+                                                    localTime.minute,
+                                                    localTime.second
+                                                )
+                                            },
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+
+                                Icon(
+                                    contentDescription = "Faza księżyca",
+                                    imageVector = currentUpcomingEvent.second,
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.size(40.dp)
+
+                                )
+                            }
+
+
+                        }
+                    }
+                }
+            }
+        }
+        HorizontalDivider(modifier = Modifier.padding(horizontal = 10.dp,vertical=24.dp),color = MaterialTheme.colorScheme.onSurface)
+        Text(
+            text = "Znak zodiaku",
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            modifier = Modifier
+                .padding(bottom=24.dp)
+        )
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .dropShadow(
+                    shape = RoundedCornerShape(25.dp),
+                    block = {
+                        radius = 2f
+                        alpha = 0.1f
+                    }
+                )
+                .border(
+                    width = Dp.Hairline,
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = .25f),
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = .1f),
+                    )),
+                    shape = RoundedCornerShape(25.dp)
+                    )
+                .clip(RoundedCornerShape(25.dp))
+                .fillMaxWidth()
+                .hazeGlass(input = HazeInput.Backdrop(hazeState),style = hazeStyle)
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+
+        ) {
+            val currentMoonZodiacSign = getMoonZodiacSign()
+            Text(
+                text = currentMoonZodiacSign.first,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp
+            )
+            Icon(
+                contentDescription = "Księżycowy znak zodiaku",
+                imageVector = currentMoonZodiacSign.second,
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.size(24.dp)
+
+            )
         }
         Column(
             modifier = Modifier
@@ -292,7 +491,7 @@ fun MoonScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
 
-        ){
+        ) {
 
 
             Text(
@@ -302,6 +501,7 @@ fun MoonScreen(
         }
 
     }
+}
 }
 
 @Preview

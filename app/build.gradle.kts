@@ -83,4 +83,5 @@ dependencies {
     implementation(libs.haze.blur)
     implementation(libs.haze.blur.materials)
     implementation(libs.haze.blur.material3)
+    implementation(libs.tabler.icons)
 }

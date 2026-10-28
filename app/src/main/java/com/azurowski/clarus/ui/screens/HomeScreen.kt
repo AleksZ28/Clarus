@@ -83,6 +83,7 @@ import dev.chrisbanes.haze.glass.GlassStyle
 import dev.chrisbanes.haze.glass.OpticalSizeValue
 import dev.chrisbanes.haze.glass.SurfaceProfile
 import dev.chrisbanes.haze.glass.hazeGlass
+import dev.chrisbanes.haze.glass.material3.material3
 import dev.chrisbanes.haze.hazeSource
 import kotlin.math.round
 
@@ -145,10 +146,10 @@ fun HomeScreen(
             refractionFoldStrength = 0.7f,
             depth = OpticalSizeValue.Fixed(0.8f),
         )
-        val buttonHazeStyle = GlassStyle {
+        val buttonHazeStyle = GlassStyle.clear.material3().then {
             optics(optics)
             surfaceProfile(SurfaceProfile.Squircle)
-
+            tint(Color.White.copy(alpha = 0.08f))
         }
         val buttonShape = CircleShape
         val isDark = isSystemInDarkTheme()

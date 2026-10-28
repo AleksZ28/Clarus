@@ -34,6 +34,7 @@ import dev.chrisbanes.haze.glass.GlassStyle
 import dev.chrisbanes.haze.glass.OpticalSizeValue
 import dev.chrisbanes.haze.glass.SurfaceProfile
 import dev.chrisbanes.haze.glass.hazeGlass
+import dev.chrisbanes.haze.glass.material3.material3
 import dev.chrisbanes.haze.hazeEffect
 
 sealed class NavBarTab(val title: String, val icon: ImageVector, val color: Color) {
@@ -77,10 +78,10 @@ fun NavBar(
         refractionFoldStrength = 0.7f,
         depth = OpticalSizeValue.Fixed(0.8f),
     )
-    val hazeStyle = GlassStyle{
+    val hazeStyle = GlassStyle.clear.material3().then{
         optics(optics)
         surfaceProfile(SurfaceProfile.Squircle)
-
+        tint(Color.White.copy(alpha = 0.08f))
     }
 
         Box(
