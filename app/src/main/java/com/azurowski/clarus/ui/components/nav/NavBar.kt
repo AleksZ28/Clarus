@@ -64,12 +64,6 @@ fun NavBar(
     Home: () -> Unit,
     Moon: () -> Unit
 ) {
-//    val hazeStyle = HazeBlurStyle.Material3() {
-//        blurEnabled(true)
-//        blurRadius(8.dp)
-//        noiseFactor(.15f)
-//        colorEffects(listOf(HazeColorEffect.tint(Color.White.copy(alpha = 0.7f))))
-//    }
     val optics = GlassOptics(
         blurRadius = OpticalSizeValue.Fixed(30.dp),
         refractionStrength = 0.9f,
@@ -78,10 +72,9 @@ fun NavBar(
         refractionFoldStrength = 0.7f,
         depth = OpticalSizeValue.Fixed(0.8f),
     )
-    val hazeStyle = GlassStyle.clear.material3().then{
+    val hazeStyle = GlassStyle{
         optics(optics)
         surfaceProfile(SurfaceProfile.Squircle)
-        tint(Color.White.copy(alpha = 0.08f))
     }
 
         Box(

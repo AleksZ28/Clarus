@@ -1,11 +1,8 @@
 package com.azurowski.clarus.ui.screens.moon
 
-import android.R
 import android.annotation.SuppressLint
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,14 +12,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -42,7 +34,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,21 +47,16 @@ import com.azurowski.clarus.ui.moonUtils.getMoonZodiacSign
 import com.azurowski.clarus.ui.moonUtils.getPhaseData
 import com.azurowski.clarus.ui.permissions.RequestLocationPermissions
 import com.azurowski.clarus.ui.theme.FullMoon
-import com.azurowski.clarus.ui.theme.MoonPhasesBackgrounds
 import com.google.android.gms.location.LocationServices
 import compose.icons.WeatherIcons
-import compose.icons.weathericons.Lightning
-import compose.icons.weathericons.LunarEclipse
 import compose.icons.weathericons.Moonrise
 import compose.icons.weathericons.Moonset
-import compose.icons.weathericons.NightAltLightning
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.HazeInput
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.blur.HazeBlurStyle
 import dev.chrisbanes.haze.blur.HazeColorEffect
 import dev.chrisbanes.haze.blur.hazeBlur
-import dev.chrisbanes.haze.blur.material3.Material3
 import dev.chrisbanes.haze.glass.GlassOptics
 import dev.chrisbanes.haze.glass.GlassStyle
 import dev.chrisbanes.haze.glass.OpticalSizeValue
@@ -82,16 +68,10 @@ import dev.jamesyox.kastro.luna.LunarEvent
 import dev.jamesyox.kastro.luna.LunarEventSequence
 import dev.jamesyox.kastro.luna.LunarPhaseSequence
 import dev.jamesyox.kastro.luna.calculateLunarState
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.format
-import kotlinx.datetime.format.DateTimeFormat
-import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.time.format.DateTimeFormatter
-import java.util.regex.Pattern
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 
@@ -127,18 +107,17 @@ fun MoonScreen(
         refractionFoldStrength = 0.7f,
         depth = OpticalSizeValue.Fixed(0.8f),
     )
-    val hazeStyle = GlassStyle.clear.material3().then{
+    val hazeStyle = GlassStyle{
         optics(optics)
         surfaceProfile(SurfaceProfile.Squircle)
-        tint(Color.White.copy(alpha = 0.08f))
 
     }
-//    val hazeStyle = HazeBlurStyle.Material3() {
-//        blurEnabled(true)
-//        blurRadius(24.dp)
-//        noiseFactor(.08f)
-//        colorEffects(listOf(HazeColorEffect.tint(Color.White.copy(alpha = 0.70f))))
-//    }
+    val hazeBlurStyle = HazeBlurStyle {
+        blurRadius(16.dp)
+        colorEffects(listOf(
+            HazeColorEffect.tint(Color.White.copy(alpha=0.4f))))
+        backgroundColor(Color.White.copy(alpha = 1f))
+    }
 Box(
     modifier = Modifier
         .fillMaxSize()
@@ -202,10 +181,7 @@ Box(
                     }
                 )
                 .clip(RoundedCornerShape(25.dp))
-                .hazeGlass(
-                    input = HazeInput.Backdrop(hazeState),
-                    style = hazeStyle
-                )
+                .hazeBlur(input = HazeInput.Backdrop(hazeState),style=hazeBlurStyle)
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -343,21 +319,22 @@ Box(
                                 ),
                                 shape = RoundedCornerShape(25.dp))
                             .clip(RoundedCornerShape(25.dp))
-                            .hazeGlass(input = HazeInput.Backdrop(hazeState), style = hazeStyle)
+                            .hazeBlur(input = HazeInput.Backdrop(hazeState),style=hazeBlurStyle)
                             .padding(8.dp)
 
                         ) {
                             val currentUpcomingEvent = getPhaseData(phaseEvent)
-                            Row(
+                            Column(
                                 modifier = Modifier
                                     .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceAround,
-                                verticalAlignment = Alignment.CenterVertically
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.SpaceAround
                             )
                             {
                                 Column(
                                     verticalArrangement = Arrangement.spacedBy(4.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.padding(bottom=8.dp)
                                 ) {
                                     Text(
                                         text = currentUpcomingEvent.first,
@@ -435,7 +412,7 @@ Box(
                     )
                 .clip(RoundedCornerShape(25.dp))
                 .fillMaxWidth()
-                .hazeGlass(input = HazeInput.Backdrop(hazeState),style = hazeStyle)
+                .hazeBlur(input = HazeInput.Backdrop(hazeState),style=hazeBlurStyle)
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
