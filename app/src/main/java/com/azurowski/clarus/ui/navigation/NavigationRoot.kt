@@ -1,5 +1,11 @@
 package com.azurowski.clarus.ui.navigation
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -26,11 +32,11 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 
 @Composable
-fun NavigationRoot(){
+fun NavigationRoot() {
     val backstack = rememberNavBackStack(
         configuration = SavedStateConfiguration {
             serializersModule = SerializersModule {
-                polymorphic(NavKey::class){
+                polymorphic(NavKey::class) {
                     subclass(Route.Home::class, Route.Home.serializer())
                     subclass(Route.LocationChange::class, Route.LocationChange.serializer())
                     subclass(Route.FullWeather::class, Route.FullWeather.serializer())
@@ -48,7 +54,7 @@ fun NavigationRoot(){
         is Route.Moon -> 1
         else -> 0
     }
-
+    val animSpec = tween<Float>(durationMillis = 450, easing = FastOutSlowInEasing)
     Box(modifier = Modifier.fillMaxSize()) {
         NavDisplay(
             modifier = Modifier.fillMaxSize(),
@@ -57,14 +63,24 @@ fun NavigationRoot(){
                 rememberSaveableStateHolderNavEntryDecorator(),
                 rememberViewModelStoreNavEntryDecorator()
             ),
+
             transitionSpec = {
-                slideInHorizontally(initialOffsetX = { it }) togetherWith slideOutHorizontally(targetOffsetX = { -it })
+                (scaleIn(initialScale = 0.85f, animationSpec = animSpec) + fadeIn(animationSpec = animSpec))
+                    .togetherWith(
+                        scaleOut(targetScale = 1.15f, animationSpec = animSpec) + fadeOut(animationSpec = animSpec)
+                    )
             },
             popTransitionSpec = {
-                slideInHorizontally(initialOffsetX = { -it }) togetherWith slideOutHorizontally(targetOffsetX = { it })
+                (scaleIn(initialScale = 1.15f, animationSpec = animSpec) + fadeIn(animationSpec = animSpec))
+                    .togetherWith(
+                        scaleOut(targetScale = 0.85f, animationSpec = animSpec) + fadeOut(animationSpec = animSpec)
+                    )
             },
             predictivePopTransitionSpec = {
-                slideInHorizontally(initialOffsetX = { -it }) togetherWith slideOutHorizontally(targetOffsetX = { it })
+                (scaleIn(initialScale = 1.15f, animationSpec = animSpec) + fadeIn(animationSpec = animSpec))
+                    .togetherWith(
+                        scaleOut(targetScale = 0.85f, animationSpec = animSpec) + fadeOut(animationSpec = animSpec)
+                    )
             },
             entryProvider = { key ->
                 when (key) {
@@ -81,6 +97,7 @@ fun NavigationRoot(){
                             )
                         }
                     }
+
                     is Route.LocationChange -> {
                         NavEntry(key) {
                             LocationChangeScreen(
@@ -94,6 +111,7 @@ fun NavigationRoot(){
                             )
                         }
                     }
+
                     is Route.FullWeather -> {
                         NavEntry(key) {
                             FullWeatherScreen(
@@ -105,6 +123,7 @@ fun NavigationRoot(){
                             )
                         }
                     }
+
                     is Route.Moon -> {
                         NavEntry(key) {
                             MoonScreen(
@@ -112,6 +131,7 @@ fun NavigationRoot(){
                             )
                         }
                     }
+
                     else -> error("Unknown route $key")
                 }
             }
