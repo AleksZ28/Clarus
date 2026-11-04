@@ -18,10 +18,18 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerFormatter
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,6 +76,7 @@ import dev.jamesyox.kastro.luna.LunarEvent
 import dev.jamesyox.kastro.luna.LunarEventSequence
 import dev.jamesyox.kastro.luna.LunarPhaseSequence
 import dev.jamesyox.kastro.luna.calculateLunarState
+import io.ktor.websocket.Frame
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
@@ -137,7 +146,7 @@ Box(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .statusBarsPadding()
-            .padding(top = 24.dp),
+            .padding(top = 24.dp, bottom = 96.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
 
 
@@ -181,7 +190,7 @@ Box(
                     }
                 )
                 .clip(RoundedCornerShape(25.dp))
-                .hazeBlur(input = HazeInput.Backdrop(hazeState),style=hazeBlurStyle)
+                .hazeBlur(input = HazeInput.Backdrop(hazeState), style = hazeBlurStyle)
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -317,9 +326,10 @@ Box(
                                         MaterialTheme.colorScheme.onSurface.copy(alpha = .1f),
                                     ),
                                 ),
-                                shape = RoundedCornerShape(25.dp))
+                                shape = RoundedCornerShape(25.dp)
+                            )
                             .clip(RoundedCornerShape(25.dp))
-                            .hazeBlur(input = HazeInput.Backdrop(hazeState),style=hazeBlurStyle)
+                            .hazeBlur(input = HazeInput.Backdrop(hazeState), style = hazeBlurStyle)
                             .padding(8.dp)
 
                         ) {
@@ -405,14 +415,15 @@ Box(
                     width = Dp.Hairline,
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = .25f),
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = .1f),
-                    )),
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = .25f),
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = .1f),
+                        )
+                    ),
                     shape = RoundedCornerShape(25.dp)
-                    )
+                )
                 .clip(RoundedCornerShape(25.dp))
                 .fillMaxWidth()
-                .hazeBlur(input = HazeInput.Backdrop(hazeState),style=hazeBlurStyle)
+                .hazeBlur(input = HazeInput.Backdrop(hazeState), style = hazeBlurStyle)
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
@@ -433,49 +444,80 @@ Box(
 
             )
         }
-        Column(
+        HorizontalDivider(modifier = Modifier.padding(10.dp),color = MaterialTheme.colorScheme.onSurface)
+        Text(
+            text = "Stan księżya wybranego dnia",
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
             modifier = Modifier
-
-                .padding(16.dp)
-                .height(IntrinsicSize.Min)
+                .padding(top = 16.dp,bottom=24.dp)
+        )
+        val datePickerState = rememberDatePickerState()
+        var datePickerShown by remember { mutableStateOf(false) }
+        val onDismiss = {
+            datePickerShown = false
+        }
+        Button(
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            ),
+            onClick = {
+                datePickerShown = true
+            },
+            modifier = Modifier
+                .dropShadow(
+                    shape = RoundedCornerShape(25.dp),
+                    block = {
+                        radius = 2f
+                        alpha = 0.1f
+                    }
+                )
                 .border(
                     width = Dp.Hairline,
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color.Black.copy(alpha = .25f),
-                            Color.Black.copy(alpha = .1f),
-                        ),
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = .25f),
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = .1f),
+                        )
                     ),
                     shape = RoundedCornerShape(25.dp)
                 )
-                .dropShadow(
-                    shape = RoundedCornerShape(25.dp),
-                    block = {
-                        radius = 20f
-                        alpha = 0.25f
-
-                    }
-                )
                 .clip(RoundedCornerShape(25.dp))
-//                .background(Color.Black.copy(alpha = .7f), RoundedCornerShape(25.dp))
-                .hazeGlass(
-                    input = HazeInput.Backdrop(hazeState),
-                    style = hazeStyle
-                )
-
-
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-
+                .hazeBlur(input = HazeInput.Backdrop(hazeState), style = hazeBlurStyle)
         ) {
-
-
             Text(
-                text = moonState.toString(),
-                color = Color.White
+                "Wybierz datę"
             )
         }
+        if(datePickerShown){
+            DatePickerDialog(
+                onDismissRequest = onDismiss,
+                confirmButton = {
+                    TextButton(
+                        onClick = onDismiss
+                    ) {
+                        Text(
+                            "Ok"
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = onDismiss
+                    ) {
+                        Text("Anuluj")
+                    }
+                }
+
+            ) {
+                DatePicker(
+                    state = datePickerState,
+                )
+            }
+        }
+
 
     }
 }

@@ -1,6 +1,11 @@
 [versions]
 agp = "9.2.1"
 fontAwesome = "2.1.0"
+glance = "1.3.0-alpha02"
+glanceAppwidget = "1.3.0-alpha02"
+glanceMaterial = "1.3.0-alpha02"
+glanceMaterial3 = "1.3.0-alpha02"
+glanceWearTiles = "1.0.0-alpha07"
 haze = "2.0.1"
 hazeBlur = "2.0.1"
 hazeBlurMaterial3 = "2.0.1"
@@ -39,6 +44,11 @@ kotlinxDatetime = "0.8.0"
 [libraries]
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-glance = { module = "androidx.glance:glance", version.ref = "glance" }
+androidx-glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "glanceAppwidget" }
+androidx-glance-material = { module = "androidx.glance:glance-material", version.ref = "glanceMaterial" }
+androidx-glance-material3 = { module = "androidx.glance:glance-material3", version.ref = "glanceMaterial3" }
+androidx-glance-wear-tiles = { module = "androidx.glance:glance-wear-tiles", version.ref = "glanceWearTiles" }
 font-awesome = { module = "com.github.joaocsousa:font-awesome", version.ref = "fontAwesome" }
 haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
 haze-blur = { module = "dev.chrisbanes.haze:haze-blur", version.ref = "hazeBlur" }

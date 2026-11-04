@@ -17,7 +17,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -34,6 +33,7 @@ android {
 
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 }
 
@@ -84,4 +84,9 @@ dependencies {
     implementation(libs.haze.blur.materials)
     implementation(libs.haze.blur.material3)
     implementation(libs.tabler.icons)
+    implementation(libs.androidx.glance)
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
+    implementation(libs.androidx.glance.material)
+    implementation(libs.androidx.glance.wear.tiles)
 }
